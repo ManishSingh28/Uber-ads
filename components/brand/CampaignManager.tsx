@@ -1,17 +1,23 @@
+// component/brand/CampaignManager.tsx
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar, ChevronDown } from 'lucide-react';
+import { Plus, Calendar, ChevronDown, Filter } from 'lucide-react';
 import { Chart, registerables } from 'chart.js';
-import { campaignDatabase } from '@/lib/data';
+import { campaignDatabase, performanceDataStore } from '@/lib/data';
 
 Chart.register(...registerables);
 
 export default function CampaignManager({ setActivePage, setSelectedCampaign, setIsModalOpen, setIsHeatmapOpen }: any) {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [datePreset, setDatePreset] = useState('custom');
-  const [startDate, setStartDate] = useState('2026-05-01');
+  const [datePreset, setDatePreset] = useState('today');
+  const [startDate, setStartDate] = useState('2026-05-10');
   const [endDate, setEndDate] = useState('2026-05-10');
+  
+  // Track current active data based on selection from lib/data.ts
+  const currentData = performanceDataStore[datePreset] || performanceDataStore['custom'];
+
   const mainChartRef = useRef<HTMLCanvasElement>(null);
+  let chartInstance = useRef<Chart | null>(null);
 
   const formatDate = (dateStr: string) => {
       const date = new Date(dateStr);
@@ -31,46 +37,61 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
   };
 
   useEffect(() => {
-    let chartInstance: Chart | null = null;
     if (mainChartRef.current) {
       const ctx = mainChartRef.current.getContext('2d');
+      
+      if (chartInstance.current) {
+          chartInstance.current.destroy();
+      }
+
       if (ctx) {
-        chartInstance = new Chart(ctx, {
+        chartInstance.current = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM', '12 AM'],
+            labels: currentData.chart.labels,
             datasets: [
-              { label: 'Verified Impressions', data: [12000, 45000, 38000, 41000, 58000, 32000, 8000], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderWidth: 3, tension: 0.4, fill: true },
-              { label: 'Active Vehicles', data: [150, 480, 420, 440, 500, 380, 120], borderColor: '#16a34a', borderWidth: 2, borderDash: [5, 5], tension: 0.4, yAxisID: 'y1' }
+              { label: 'Verified Impressions', data: currentData.chart.views, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderWidth: 3, tension: 0.4, fill: true },
+              { label: 'Active Vehicles', data: currentData.chart.fleet, borderColor: '#16a34a', borderWidth: 2, borderDash: [5, 5], tension: 0.4, yAxisID: 'y1' }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left' }, y1: { position: 'right', grid: { drawOnChartArea: false } } } }
+          options: { 
+              responsive: true, 
+              maintainAspectRatio: false, 
+              scales: { 
+                  y: { position: 'left', ticks: { callback: (value) => { return (Number(value) / 1000000 >= 1) ? (Number(value) / 1000000).toFixed(1) + 'M' : value; } } }, 
+                  y1: { position: 'right', grid: { drawOnChartArea: false } } 
+              } 
+          }
         });
       }
     }
-    return () => { if (chartInstance) chartInstance.destroy(); };
-  }, [startDate, endDate]);
+    return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+  }, [currentData]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-black uppercase italic text-gray-900">Campaign Manager</h2>
-          <p className="text-sm text-gray-500 font-bold mt-1">Coca-Cola India • Managed Fleet: 1,240 Vehicles</p>
+          <p className="text-sm text-gray-500 font-bold">Coca-Cola India • Managed Fleet: 1,240 Vehicles</p>
         </div>
         <button onClick={() => setActivePage('create-campaign')} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-xl hover:shadow-blue-200 transition-all active:scale-95">
           <Plus size={20} /> NEW CAMPAIGN
         </button>
       </div>
 
-      {/* LIVE WIDGET */}
       <div className="bg-white border border-gray-200 rounded-[32px] shadow-sm overflow-visible">
         <div className="p-6 border-b flex justify-between items-center bg-gray-50/50 rounded-t-[32px]">
             <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <h3 className="font-bold text-xs uppercase tracking-widest text-gray-600">Real-Time Fleet Performance</h3>
             </div>
+            
             <div className="flex items-center gap-4 relative">
+                <button className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl text-xs font-bold text-gray-700 hover:border-black transition-colors shadow-sm">
+                    <Filter size={14} className="text-gray-400"/>
+                    Filters
+                </button>
+
                 <button onClick={() => setIsDatePickerOpen(!isDatePickerOpen)} className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl text-xs font-bold text-gray-700 hover:border-black transition-colors shadow-sm">
                     <Calendar size={14} className="text-gray-400"/>
                     {formatDate(startDate)} - {formatDate(endDate)}
@@ -110,16 +131,17 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
                 <button onClick={() => setIsHeatmapOpen(true)} className="text-[10px] font-black text-blue-600 hover:underline tracking-tighter uppercase border border-blue-100 px-3 py-2 rounded-xl bg-white shadow-sm flex items-center gap-1">📍 Intelligence Heatmap</button>
             </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x border-b border-gray-100">
-            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Active Fleet</p><p className="text-3xl font-black">942 <span className="text-xs font-medium text-gray-400">/ 1.2k</span></p></div>
-            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Verified Ad-KMs</p><p className="text-3xl font-black">142.5k</p></div>
-            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Impressions</p><p className="text-3xl font-black text-blue-600">8.4M</p></div>
-            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Fraud Integrity</p><p className="text-3xl font-black text-green-600">98.2%</p></div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x border-b border-gray-100 transition-all">
+            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Avg. Active Fleet</p><p className="text-3xl font-black">{currentData.metrics.active} <span className="text-xs font-medium text-gray-400">/ 1.2k</span></p></div>
+            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Verified Ad-KMs</p><p className="text-3xl font-black">{currentData.metrics.adKms}</p></div>
+            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Est. Impressions</p><p className="text-3xl font-black text-blue-600">{currentData.metrics.impressions}</p></div>
+            <div className="p-8"><p className="text-[10px] font-black text-gray-400 uppercase mb-2">Fraud Integrity</p><p className="text-3xl font-black text-green-600">{currentData.metrics.fraud}</p></div>
         </div>
+        
         <div className="p-8 h-80 bg-white"><canvas ref={mainChartRef}></canvas></div>
       </div>
 
-      {/* TABLE */}
       <div className="space-y-4 relative z-0">
         <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Campaign History</h3>
         <div className="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden mb-10">
