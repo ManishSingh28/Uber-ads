@@ -18,12 +18,10 @@ export default function BrandLogin({ setActivePage }: any) {
 
       {/* MAIN LOGIN SECTION */}
       <main className="flex-1 flex items-center justify-center pb-12 pt-4">
-        {/* Updated Grid: Changed to 2:1 ratio (2fr for image, 1fr for form) */}
         <div className="max-w-[1400px] w-full mx-auto px-8 grid lg:grid-cols-[2fr_1fr] gap-10 lg:gap-14 items-center">
           
-          {/* LEFT: Illustration (Updated to 2:1 Aspect Ratio) */}
+          {/* LEFT: Illustration */}
           <div className="relative w-full aspect-[2/1] bg-[#f6f6f6] rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center">
-                {/* Changed to object-contain to ensure the complete image is visible */}
                 <img 
                     src="/login-art.png" 
                     alt="Uber Cityscape" 

@@ -1,35 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  /* You can define custom colors here if needed */
+  --color-uber-black: #000000;
+  --color-uber-gray: #F6F6F6;
+  --color-uber-border: #EEEEEE;
 }
 
-/* Page routing logic */
-.page { 
-    display: none; 
-}
-.active { 
-    display: block; 
+body {
+  @apply bg-white text-black antialiased;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Custom Components using standard CSS */
-.uber-card { 
-    border-radius: 12px; 
-    transition: all 0.2s; 
+/* Uber Typography */
+h1, h2, h3 {
+  @apply font-bold tracking-tight text-black;
 }
 
-/* Animations */
-.live-indicator { 
-    animation: blink 1s infinite; 
+/* Uber Button Standard */
+.btn-primary {
+  @apply bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-zinc-800 transition-all active:scale-95;
 }
 
-@keyframes blink { 
-    0% { opacity: 1; } 
-    50% { opacity: 0.3; } 
-    100% { opacity: 1; } 
+.btn-secondary {
+  @apply bg-zinc-100 text-black px-6 py-3 rounded-lg font-bold hover:bg-zinc-200 transition-all active:scale-95;
 }
 
-/* Hide scrollbars */
-::-webkit-scrollbar { 
-    display: none; 
+/* Card Styling */
+.uber-card {
+  @apply bg-white border border-zinc-100 shadow-sm rounded-xl overflow-hidden;
 }
+
+::-webkit-scrollbar { display: none; }

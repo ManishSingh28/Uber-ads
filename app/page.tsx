@@ -10,13 +10,11 @@ import BrandLogin from '@/components/BrandLogin';
 export default function Home() {
   const [activeApp, setActiveApp] = useState('brand');
   
-  // <-- CHANGE THIS STATE TO 'login' SO IT LOADS FIRST -->
   const [activePage, setActivePage] = useState('login');
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
       
-      {/* Hide the global navigation if we are on the login page */}
       {activePage !== 'login' && (
           <Navigation activeApp={activeApp} setActiveApp={setActiveApp} setActivePage={setActivePage} />
       )}

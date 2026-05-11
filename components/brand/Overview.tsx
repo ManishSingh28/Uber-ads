@@ -1,24 +1,35 @@
 "use client";
 import React from 'react';
-import { Home } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function Overview({ setActiveBrandSection }: any) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center bg-white border border-gray-200 rounded-3xl p-10">
-          <div className="w-20 h-20 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-            <Home size={32} className="text-blue-600" />
+    <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700 pt-12">
+       <h1 className="text-5xl font-bold mb-6 leading-tight">Maximize your brand’s <br/>reach on the road.</h1>
+       <p className="text-lg text-zinc-600 mb-10 max-w-xl">
+         Deploy digital and vinyl advertising across the world’s largest mobility fleet. 
+         Track real-time impressions and optimize your OOH spend with Uber's first-party data.
+       </p>
+       
+       <div className="grid md:grid-cols-2 gap-6">
+          <div className="uber-card p-8 group cursor-pointer hover:border-black transition-all">
+             <h3 className="text-xl mb-4">Start a campaign</h3>
+             <p className="text-sm text-zinc-500 mb-6">Create new vinyl or digital ad-sets for targeted city zones.</p>
+             <button 
+                onClick={() => setActiveBrandSection('Campaign Manager')}
+                className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all"
+             >
+                Get started <ArrowRight size={18} />
+             </button>
           </div>
-          <h2 className="text-2xl font-black uppercase italic tracking-wider text-gray-800">Brand Overview</h2>
-          <p className="text-gray-500 max-w-md mt-4 text-sm leading-relaxed">
-            Welcome to your command center. Select <strong className="text-gray-900">Campaign Manager</strong> from the sidebar to view live fleet performance, historical data, or to deploy new vinyl creatives to the road.
-          </p>
-          <button 
-              onClick={() => setActiveBrandSection('Campaign Manager')}
-              className="mt-8 bg-black text-white px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:bg-gray-800 transition-colors"
-          >
-              Go to Campaign Manager
-          </button>
+          
+          <div className="uber-card p-8 group cursor-pointer hover:border-black transition-all">
+             <h3 className="text-xl mb-4">View fleet performance</h3>
+             <p className="text-sm text-zinc-500 mb-6">See how your active ads are performing in real-time across hubs.</p>
+             <button className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
+                Analytics <ArrowRight size={18} />
+             </button>
+          </div>
        </div>
     </div>
   );
