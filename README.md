@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Uber-Ads — Mobility-Native OOH Advertising Platform
 
-## Getting Started
+A product concept and working prototype for a first-party Out-of-Home advertising platform built on Uber's vehicle fleet and trip data. Includes a full PM strategy workbook: competitive teardown, growth experiments, onboarding audit, PRD, and market sizing.
 
-First, run the development server:
+---
+
+## The Problem
+
+India's ₹5,800 Cr OOH advertising market is broken in a specific way:
+
+- Brands pay for billboards but cannot measure who saw them
+- Premium urban audiences are mobile — not anchored to a static location
+- Existing "rideshare wrap" players (Movia, Wrapify) are parasite platforms — they sit on top of Uber/Lyft with no platform data access, no route optimization, and no closed-loop measurement
+
+Meanwhile, Uber driver-partners generate zero incremental revenue when their vehicle isn't on a trip.
+
+## The Product
+
+Uber-Ads turns enrolled driver vehicles into a GPS-verified, data-informed, dynamic OOH media channel.
+
+- **Brands** buy city zones + time slots with verified impression reporting
+- **Drivers** earn ₹3,000–4,000/month in passive incremental income
+- **Uber** earns a media revenue layer on top of its existing mobility business — the same platform-leverage logic as Uber Eats
+
+## Why Uber Wins
+
+| Capability | Static OOH (Lamar) | DOOH (Clear Channel) | Rideshare Wraps (Movia) | Uber-Ads |
+|---|---|---|---|---|
+| First-party audience data | ✗ | ✗ (third-party, shrinking post-ATT) | ✗ | ✓ Trip data, zones, time-of-day |
+| Mobile inventory | ✗ | ✗ | ✓ | ✓ |
+| Closed-loop measurement | ✗ | Partial | ✗ | ✓ |
+| Platform-owned fleet | — | — | ✗ (dependent on Uber/Lyft goodwill) | ✓ |
+
+---
+
+## Prototype
+
+Built with **Next.js + TypeScript**. Covers two primary views:
+
+**Brand Dashboard (Demand Side)**
+- Campaign creation flow — zone selection, time slot, budget, creative upload
+- Impression reporting dashboard with city-level heatmap
+
+**Rider-Facing View (Supply Side)**
+- Driver enrollment flow
+- Real-time earnings dashboard showing ad revenue per trip
+
+> The prototype is currently UI-focused. One complete end-to-end flow per persona is in progress.
+
+### Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## PM Strategy Workbook
 
-## Learn More
+Five deliverables covering the full product strategy for Uber-Ads v1 (Bangalore launch):
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Competitive Feature Teardown
+Analysis of Lamar Advertising, Clear Channel Outdoor (RADAR), and Movia Media — dissecting what problem each solves, what business metrics they target, structural weaknesses, and what Uber-Ads does differently. Key finding: the OOH market has a measurement gap, a targeting gap, and a data ownership gap that no existing player can close without owning the mobility platform.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. Growth Experiment Design
+Three prioritized growth experiments using RICE scoring to solve the two-sided cold-start problem (driver supply + brand demand must grow in parallel):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Experiment | Hypothesis | RICE Rank |
+|---|---|---|
+| In-app earnings nudge for driver enrollment | Personalized earning projection converts 2x vs generic banner | #1 |
+| "First campaign free" pilot for brand acquisition | Measurement report post-pilot drives ≥30% paid conversion | #2 |
+| Zonal surge pricing for premium inventory | Location+time targeting commands 2x CPM premium | #3 |
 
-## Deploy on Vercel
+Each experiment includes a hypothesis, A/B structure, success criteria, and explicit failure conditions.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3. Onboarding Audit
+Journey map for both driver enrollment and brand advertiser onboarding. Identified three high-friction drop-off points (peak: ~55% exit on vehicle eligibility form). Recommendations projected to lift driver activation rate from ~12% to 28–35%.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. PRD — v1 Bangalore Launch
+Full product requirements document including user signals, problem statement, personas (brand marketing manager + driver partner), success metrics, scope definition (in/out/later), edge cases, and open questions. Regulatory risks (DPDP Act 2023, BBMP advertising license) are flagged explicitly.
+
+**North Star Metric:** Brand campaign renewal rate (% of advertisers who run a second campaign) — chosen because it ties supply and demand health together.
+
+**Target (6 months):** 2,000 enrolled vehicles · 25 active brand accounts · ₹2.5 Cr/month gross ad revenue
+
+### 5. Market Sizing & Opportunity Brief
+Bottom-up market sizing with unit economics validation:
+
+| Layer | Size |
+|---|---|
+| TAM — India OOH market | ₹5,800 Cr/year |
+| SAM — Urban metro mobile/transit OOH | ₹520 Cr/year |
+| SOM — Uber-Ads, Bangalore v1 | ₹12–17 Cr Year 1 · ₹40–60 Cr Year 2 |
+
+Unit economics check: 2,000 vehicles × ₹8,000/month campaign revenue × 12 months = ₹19.2 Cr/year at 100% utilisation. Conservative SOM (₹12–17 Cr) assumes 60–70% fleet utilisation.
+
+---
+
+## What I'd Validate First
+
+These are the assumptions that need real data before any pilot decision:
+
+1. **Driver enrollment willingness** — the ₹3,000–4,000/month earning projection is modeled, not validated. The actual number depends on fleet density per zone and advertiser fill rate, neither of which exists yet.
+2. **Brand advertiser price sensitivity** — the ₹120 CPM standard / ₹240 CPM premium zone pricing is directional. Whether D2C brands will pay a 2x premium for location targeting needs a real sales conversation, not a model.
+3. **Regulatory path** — whether BBMP classifies vehicle-wrapped ads as requiring a separate advertising license is a binary risk. This needs a legal opinion before any driver enrollment begins.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+
+---
+
+## About This Project
+
+This is an independent product concept developed as a PM portfolio project. All market data is sourced from publicly available industry reports (OAAA 2024, Madison Mediacom 2025, BCG India Gig Economy Report 2024). Uber-Ads is not an official Uber product.
+
+*Constructed scenarios are clearly flagged in the strategy workbook where real user research data does not exist.*
