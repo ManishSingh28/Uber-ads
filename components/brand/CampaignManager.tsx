@@ -72,23 +72,14 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
           <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Coca-Cola India • 1,240 Vehicles</p>
         </div>
         
-        <div className="flex gap-4">
-            {/* RESTORED: Rider App Link */}
-            <button 
-                onClick={() => setActivePage('rider-experience')} 
-                className="bg-white border-2 border-black text-black px-6 py-3 rounded-xl font-bold shadow-sm hover:bg-zinc-50 transition-all uppercase text-xs"
-            >
-                Launch Rider App
-            </button>
-            
+        <div className="flex gap-4">            
             <button 
                 onClick={() => setActivePage('create-campaign')} 
-                className="bg-black text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 shadow-xl hover:bg-zinc-800 transition-all active:scale-95 text-sm"
-            >
-              <Plus size={20} /> NEW CAMPAIGN
+                className="bg-black text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 shadow-xl hover:bg-zinc-800 transition-all active:scale-95 text-sm">
+                <Plus size={20} /> NEW CAMPAIGN
             </button>
         </div>
-      </div>
+    </div>
 
       {/* Metrics & Performance remain visually updated but fully functional */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -120,11 +111,11 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
             </div>
         </div>
         <div className="p-8 h-80"><canvas ref={mainChartRef}></canvas></div>
-      </div>
+    </div>
 
-      <div className="uber-card overflow-hidden">
-          <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50 border-b border-zinc-100">
+    <div className="uber-card overflow-hidden">
+        <table className="w-full text-left text-sm">
+            <thead className="bg-zinc-50 border-b border-zinc-100">
                   <tr className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
                       <th className="p-5">Campaign</th><th className="p-5">Duration</th><th className="p-5">Performance</th><th className="p-5">Status</th>
                   </tr>

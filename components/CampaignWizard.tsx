@@ -59,7 +59,7 @@ export default function CampaignWizard({ setActivePage }: CampaignWizardProps) {
               <ArrowRight size={16} className="rotate-180"/> Back to Portal
           </button>
       </div>
-      <h2 className="text-4xl font-black uppercase italic mb-10">Campaign Builder</h2>
+      <h2 className="text-4xl font-black uppercase mb-10">New Campaign</h2>
       
       {/* PROGRESS TRACKER */}
       <div className="flex justify-between mb-12 relative max-w-2xl mx-auto">

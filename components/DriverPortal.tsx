@@ -44,8 +44,18 @@ export default function DriverPortal() {
                         <select defaultValue="" className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none">
                             <option value="" disabled>Select vehicle...</option>
                             <option value="auto">Auto Rickshaw</option>
-                            <option value="sedan">Commercial Sedan</option>
-                            <option value="truck">Commercial LCV</option>
+                            <option value="sedan">Mini Truck</option>
+                            <option value="truck">Large truck</option>
+                        </select>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                        <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Driving Location / Range</label>
+                        <select defaultValue="" className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none">
+                            <option value="" disabled>Select primary routing...</option>
+                            <option value="city">Strictly Within City Limits</option>
+                            <option value="intercity">Across Cities (Inter-city Corridors)</option>
+                            <option value="interstate">Across States (Long Haul)</option>
                         </select>
                     </div>
 
@@ -58,7 +68,7 @@ export default function DriverPortal() {
                     </div>
 
                     <button onClick={() => setViewMode('onboarded')} className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg">
-                        Complete Onboarding
+                        Submit for Approval
                     </button>
                 </div>
             </div>
