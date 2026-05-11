@@ -1,33 +1,47 @@
-// components/Navigation.tsx
+// component/Navigation.tsx
 "use client";
 import React from 'react';
+import { Car, Building2 } from 'lucide-react';
 
 interface NavigationProps {
-  activePage: string;
-  setActivePage: (page: string) => void;
+  activeApp: string;
+  setActiveApp: (app: string) => void;
+  setActivePage: (page: string) => void; // <-- NEW: Added this prop
 }
 
-export default function Navigation({ activePage, setActivePage }: NavigationProps) {
+export default function Navigation({ activeApp, setActiveApp, setActivePage }: NavigationProps) {
   return (
-    <nav className="bg-black text-white p-4 flex justify-between items-center shadow-xl sticky top-0 z-50">
-      <div className="flex items-center space-x-2">
-        <div className="bg-white text-black px-2 py-0.5 font-black text-xl">Uber</div>
-        <div className="text-blue-400 font-bold tracking-tight">AD-DRIVE</div>
+    <div className="bg-black text-white h-16 px-6 flex items-center justify-between sticky top-0 z-50 shadow-md">
+      {/* LOGO AREA */}
+      <div 
+        className="flex items-center gap-3 cursor-pointer"
+        onClick={() => { setActiveApp('brand'); setActivePage('brand-portal'); }}
+      >
+        <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center font-black text-xl italic">U</div>
+        <span className="font-black text-xl tracking-tight">Uber <span className="font-medium text-gray-400">Ad-Drive</span></span>
       </div>
-      <div className="flex space-x-4 text-[10px] font-bold uppercase tracking-widest">
+      
+      {/* TOGGLE SWITCH */}
+      <div className="flex bg-gray-900 rounded-lg p-1 border border-gray-800">
         <button 
-          onClick={() => setActivePage('brand-portal')} 
-          className={activePage === 'brand-portal' || activePage === 'create-campaign' ? 'text-blue-400' : 'opacity-60 hover:opacity-100'}
+          onClick={() => { 
+              setActiveApp('brand'); 
+              setActivePage('brand-portal'); // <-- NEW: Resets the page when clicking the tab
+          }}
+          className={`flex items-center gap-2 px-5 py-1.5 rounded-md text-sm font-bold transition-all ${activeApp === 'brand' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
         >
-          Brand
+          <Building2 size={16} /> Brand Portal
         </button>
         <button 
-          onClick={() => setActivePage('driver-portal')} 
-          className={activePage === 'driver-portal' ? 'text-blue-400' : 'opacity-60 hover:opacity-100'}
+          onClick={() => setActiveApp('driver')}
+          className={`flex items-center gap-2 px-5 py-1.5 rounded-md text-sm font-bold transition-all ${activeApp === 'driver' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
         >
-          Driver
+          <Car size={16} /> Driver App
         </button>
       </div>
-    </nav>
+      
+      {/* EMPTY DIV TO BALANCE FLEXBOX */}
+      <div className="w-[150px]"></div>
+    </div>
   );
 }

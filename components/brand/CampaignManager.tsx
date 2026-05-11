@@ -70,15 +70,31 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-end">
+<div className="flex justify-between items-end">
         <div>
           <p className="text-sm text-gray-500 font-bold">Coca-Cola India • Managed Fleet: 1,240 Vehicles</p>
         </div>
-        <button onClick={() => setActivePage('create-campaign')} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-xl hover:shadow-blue-200 transition-all active:scale-95">
-          <Plus size={20} /> NEW CAMPAIGN
-        </button>
+        
+        {/* NEW: Button Cluster for Presentation */}
+        <div className="flex gap-4">
+            {/* The new trigger button */}
+            <button 
+                onClick={() => setActivePage('rider-experience')} 
+                className="bg-white border-2 border-black text-black px-8 py-4 rounded-2xl font-black shadow-sm hover:bg-gray-50 transition-all active:scale-95 uppercase tracking-wide text-sm"
+            >
+                Launch Rider App
+            </button>
+            
+            {/* Your existing New Campaign button */}
+            <button 
+                onClick={() => setActivePage('create-campaign')} 
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-xl hover:shadow-blue-200 transition-all active:scale-95"
+            >
+              <Plus size={20} /> NEW CAMPAIGN
+            </button>
+        </div>
       </div>
-
+      
       <div className="bg-white border border-gray-200 rounded-[32px] shadow-sm overflow-visible">
         <div className="p-6 border-b flex justify-between items-center bg-gray-50/50 rounded-t-[32px]">
             <div className="flex items-center gap-3">
