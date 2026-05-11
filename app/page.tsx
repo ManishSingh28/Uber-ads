@@ -4,41 +4,40 @@ import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import BrandPortal from '@/components/BrandPortal';
 import CampaignWizard from '@/components/CampaignWizard';
-import DriverPortal from '@/components/DriverPortal'; // Make sure this path is correct
-import RiderExperience from '@/components/RiderExperience'; 
+import DriverPortal from '@/components/DriverPortal'; 
+import BrandLogin from '@/components/BrandLogin';
 
 export default function Home() {
-  // Master state controlling the global view (Brand vs Driver mode)
   const [activeApp, setActiveApp] = useState('brand');
   
-  // State controlling the specific page within the Brand flow
-  const [activePage, setActivePage] = useState('brand-portal');
+  // <-- CHANGE THIS STATE TO 'login' SO IT LOADS FIRST -->
+  const [activePage, setActivePage] = useState('login');
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
       
-      {/* Global Top Navigation */}
-      <Navigation activeApp={activeApp} setActiveApp={setActiveApp} setActivePage={setActivePage} />
+      {/* Hide the global navigation if we are on the login page */}
+      {activePage !== 'login' && (
+          <Navigation activeApp={activeApp} setActiveApp={setActiveApp} setActivePage={setActivePage} />
+      )}
 
       <div className="flex-1">
-          {/* DRIVER MODE */}
           {activeApp === 'driver' && (
               <DriverPortal /> 
           )}
 
-          {/* BRAND MODE ROUTING */}
           {activeApp === 'brand' && (
               <>
+                  {/* <-- NEW ROUTE FOR LOGIN --> */}
+                  {activePage === 'login' && (
+                      <BrandLogin setActivePage={setActivePage} />
+                  )}
+
                   {activePage === 'brand-portal' && (
                     <BrandPortal setActivePage={setActivePage} />
                   )}
-                  
                   {activePage === 'create-campaign' && (
                     <CampaignWizard setActivePage={setActivePage} />
-                  )}
-
-                  {activePage === 'rider-experience' && (
-                    <RiderExperience setActivePage={setActivePage} />
                   )}
               </>
           )}

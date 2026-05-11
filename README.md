@@ -45,9 +45,7 @@ Built with **Next.js + TypeScript**. Covers two primary views:
 - Driver enrollment flow
 - Real-time earnings dashboard showing ad revenue per trip
 
-//> The prototype is currently UI-focused. One complete end-to-end flow per persona is in progress.
-
-Open [https://uber-ads.vercel.app/](Deployed Prototype)
+Open [https://uber-ads.vercel.app/] (Deployed Prototype)
 
 ---
 
