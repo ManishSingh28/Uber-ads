@@ -1,115 +1,73 @@
 # Uber-Ads — Mobility-Native OOH Advertising Platform
 
-A product concept and working prototype for a first-party Out-of-Home advertising platform built on Uber's vehicle fleet and trip data. Includes a full PM strategy workbook: competitive teardown, growth experiments, onboarding audit, PRD, and market sizing.
+Uber-Ads is a first-party Out-of-Home (OOH) advertising platform that leverages Uber’s vehicle fleet and deterministic trip data to create a measurable, high-performance media channel.
+
+## 📊 The Opportunity (Executive Summary)
+India's ₹5,800 Cr OOH market suffers from a "measurement gap"—brands pay for visibility they cannot verify. Uber-Ads closes this gap by turning driver vehicles into GPS-verified, data-informed media assets, creating passive income for drivers and a performance-adjacent product for brands.
+
+| Metric | Target / Logic |
+| :--- | :--- |
+| **Year 2 Revenue Potential** | **₹40–60 Cr** (SOM) across 3 tier-1 cities (BLR, DEL, BOM) |
+| **First-Party Data Moat** | Trip origins, destinations, and real-time zone density |
+| **Closed-Loop Measurement** | Pairs vehicle GPS with in-app "Companion Ads" for 100% SOV |
+| **Supply Chain Advantage** | Onboards already-credentialed and insured driver partners |
+
+## 🛠️ The Product & Why Uber Wins
+Uber-Ads allows brands to buy specific city zones and time slots with verified impression reporting calculated by real-time H3 Hexagonal Heirarchical Spatial Index. Drivers earn an incremental **₹3,000–₹8,000/month** (approx)in passive income without adding extra driving hours.
+
+| Capability | Static OOH (Lamar) | DOOH (Clear Channel) | Uber-Ads |
+| :--- | :--- | :--- | :--- |
+| **Audience Data** | None | 3rd-party (Probabilistic) | **1st-party (Deterministic)** |
+| **Measurement** | Estimated | Partial | **Verified GPS Attribution** |
+| **Contextual Triggers** | ✗ | ✗ | **✓ Real-time Route Sync** |
 
 ---
 
-## The Problem
+## 📈 Strategy Highlights
 
-India's ₹5,800 Cr OOH advertising market is broken in a specific way:
+### 1. Market Sizing & Unit Economics
+The pilot targets high-margin urban corridors in Bangalore, focusing on a beachhead of 200–300 (Phase-1, first 6 months) D2C and Fintech brands that require rigorous attribution.
 
-- Brands pay for billboards but cannot measure who saw them
-- Premium urban audiences are mobile — not anchored to a static location
-- Existing "rideshare wrap" players (Movia, Wrapify) are parasite platforms — they sit on top of Uber/Lyft with no platform data access, no route optimization, and no closed-loop measurement
+| Market Layer | Size Estimate | Calculation Inputs |
+| :--- | :--- | :--- |
+| **TAM** | **₹3,480 Crore** | Urban Metro OOH spend across Top 8 Indian cities |
+| **SAM** | **₹520 Crore** | Mobile/Transit OOH subset (18% of metro OOH - cabs, autos, buses) |
+| **SOM** | **₹12–17 Crore** | Year 1 Bangalore pilot capturing 30-40% of mobile subset |
 
-Meanwhile, Uber driver-partners generate zero incremental revenue when their vehicle isn't on a trip.
+> **Unit Economics Check:** A fleet of 3,000 vehicles at a ₹5,000 blended ARPV (Auto/Cab mix) validates the Year 1 SOM at 70% fleet utilization.
 
-## The Product
+### 2. Growth Experiments (RICE Prioritization)
+To solve the two-sided cold-start problem, experiments are prioritized to balance supply-side velocity with demand-side trust.
 
-Uber-Ads turns enrolled driver vehicles into a GPS-verified, data-informed, dynamic OOH media channel.
-
-- **Brands** buy city zones + time slots with verified impression reporting
-- **Drivers** earn ₹3,000–4,000/month in passive incremental income
-- **Uber** earns a media revenue layer on top of its existing mobility business — the same platform-leverage logic as Uber Eats
-
-## Why Uber Wins
-
-| Capability | Static OOH (Lamar) | DOOH (Clear Channel) | Rideshare Wraps (Movia) | Uber-Ads |
-|---|---|---|---|---|
-| First-party audience data | ✗ | ✗ (third-party, shrinking post-ATT) | ✗ | ✓ Trip data, zones, time-of-day |
-| Mobile inventory | ✗ | ✗ | ✓ | ✓ |
-| Closed-loop measurement | ✗ | Partial | ✗ | ✓ |
-| Platform-owned fleet | — | — | ✗ (dependent on Uber/Lyft goodwill) | ✓ |
+| Experiment | Hypothesis | RICE Score | Rank |
+| :--- | :--- | :--- | :--- |
+| **In-App Earnings Nudge** | Personalized income projections convert 2x vs. generic banners | **16,800** | **#1** |
+| **Free Pilot for Brands** | Full attribution reports reduce ROI skepticism for D2C brands | **7,500** | **#2** |
+| **Zonal Surge Pricing** | Validates if location+time targeting commands a price premium | **1,500** | **#3** |
 
 ---
 
-## Prototype
+## 📖 Deep-Dive Documentation
+For the complete product strategy, including technical specifications and detailed audits, refer to the full workbook sections below:
 
-Built with **Next.js + TypeScript**. Covers two primary views:
-
-**Brand Dashboard (Demand Side)**
-- Campaign creation flow — zone selection, time slot, budget, creative upload
-- Impression reporting dashboard with city-level heatmap
-
-**Rider-Facing View (Supply Side)**
-- Driver enrollment flow
-- Real-time earnings dashboard showing ad revenue per trip
-
-Open [https://uber-ads.vercel.app/] (Deployed Prototype)
+* **[Competitive Feature Teardown](https://docs.google.com/document/d/1JrgJGLaX1Cxp2AgfJ7UU03OtwqJ3umzX9WNm8Me6g3k/edit?tab=t.0#heading=h.vjqzuksb50qh)**: In-depth analysis of Lamar, Clear Channel (RADAR), and Movia Media's structural weaknesses.
+* **[Growth Experiment Design](https://docs.google.com/document/d/1JrgJGLaX1Cxp2AgfJ7UU03OtwqJ3umzX9WNm8Me6g3k/edit?tab=t.0#heading=h.pcuig4noskuu)**: GTM goals for both demand & supply side, 3 growth experiment hypothesis with RICE prioritization
+* **[Onboarding Flow Audit](https://docs.google.com/document/d/1JrgJGLaX1Cxp2AgfJ7UU03OtwqJ3umzX9WNm8Me6g3k/edit?tab=t.0#heading=h.rfxvb3mi514d)**: Identification of friction points in driver enrollment (55% drop-off at eligibility) and recommended UX fixes.
+* **[Full Product Requirements Document (PRD)](https://docs.google.com/document/d/1JrgJGLaX1Cxp2AgfJ7UU03OtwqJ3umzX9WNm8Me6g3k/edit?tab=t.0#heading=h.swmmb35wgf7x)**: Detailed user stories, success metrics (North Star: Renewal Rate >40%), and v1 scope definition.
+* **[Market Sizing Opportunity Brief](https://docs.google.com/document/d/1JrgJGLaX1Cxp2AgfJ7UU03OtwqJ3umzX9WNm8Me6g3k/edit?tab=t.0#heading=h.aimw7envvd1k)**: Full bottom-up calculation and beachhead segment analysis.
 
 ---
 
-## PM Strategy Workbook
+## 🔍 Critical Assumptions & Validations
+The following "binary risks" require validation before a full pilot:
+1.  **Regulatory Path:** Confirmation on whether municipal authorities (BBMP/MCGM) require separate advertising licenses for wrapped vehicles.
+2.  **Price Sensitivity:** Validating if D2C brands will pay the 2x CPM premium for high-intent zonal targeting.
+3.  **Driver Willingness:** Testing if the ₹3,000–₹4,000/month incentive is sufficient to overcome the friction of physical vehicle wrapping.
 
-Five deliverables covering the full product strategy for Uber-Ads v1 (Bangalore launch):
-
-### 1. Competitive Feature Teardown
-Analysis of Lamar Advertising, Clear Channel Outdoor (RADAR), and Movia Media — dissecting what problem each solves, what business metrics they target, structural weaknesses, and what Uber-Ads does differently. Key finding: the OOH market has a measurement gap, a targeting gap, and a data ownership gap that no existing player can close without owning the mobility platform.
-
-### 2. Growth Experiment Design
-Three prioritized growth experiments using RICE scoring to solve the two-sided cold-start problem (driver supply + brand demand must grow in parallel):
-
-| Experiment | Hypothesis | RICE Rank |
-|---|---|---|
-| In-app earnings nudge for driver enrollment | Personalized earning projection converts 2x vs generic banner | #1 |
-| "First campaign free" pilot for brand acquisition | Measurement report post-pilot drives ≥30% paid conversion | #2 |
-| Zonal surge pricing for premium inventory | Location+time targeting commands 2x CPM premium | #3 |
-
-Each experiment includes a hypothesis, A/B structure, success criteria, and explicit failure conditions.
-
-### 3. Onboarding Audit
-Journey map for both driver enrollment and brand advertiser onboarding. Identified three high-friction drop-off points (peak: ~55% exit on vehicle eligibility form). Recommendations projected to lift driver activation rate from ~12% to 28–35%.
-
-### 4. PRD — v1 Bangalore Launch
-Full product requirements document including user signals, problem statement, personas (brand marketing manager + driver partner), success metrics, scope definition (in/out/later), edge cases, and open questions. Regulatory risks (DPDP Act 2023, BBMP advertising license) are flagged explicitly.
-
-**North Star Metric:** Brand campaign renewal rate (% of advertisers who run a second campaign) — chosen because it ties supply and demand health together.
-
-**Target (6 months):** 2,000 enrolled vehicles · 25 active brand accounts · ₹2.5 Cr/month gross ad revenue
-
-### 5. Market Sizing & Opportunity Brief
-Bottom-up market sizing with unit economics validation:
-
-| Layer | Size |
-|---|---|
-| TAM — India OOH market | ₹5,800 Cr/year |
-| SAM — Urban metro mobile/transit OOH | ₹520 Cr/year |
-| SOM — Uber-Ads, Bangalore v1 | ₹12–17 Cr Year 1 · ₹40–60 Cr Year 2 |
-
-Unit economics check: 2,000 vehicles × ₹8,000/month campaign revenue × 12 months = ₹19.2 Cr/year at 100% utilisation. Conservative SOM (₹12–17 Cr) assumes 60–70% fleet utilisation.
+## 💻 Tech Stack
+* **Framework:** Next.js 14 (App Router)
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS
 
 ---
-
-## What I'd Validate First
-
-These are the assumptions that need real data before any pilot decision:
-
-1. **Driver enrollment willingness** — the ₹3,000–4,000/month earning projection is modeled, not validated. The actual number depends on fleet density per zone and advertiser fill rate, neither of which exists yet.
-2. **Brand advertiser price sensitivity** — the ₹120 CPM standard / ₹240 CPM premium zone pricing is directional. Whether D2C brands will pay a 2x premium for location targeting needs a real sales conversation, not a model.
-3. **Regulatory path** — whether BBMP classifies vehicle-wrapped ads as requiring a separate advertising license is a binary risk. This needs a legal opinion before any driver enrollment begins.
-
----
-
-## Tech Stack
-
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-
----
-
-## About This Project
-
-This is an independent product concept developed as a PM portfolio project. All market data is sourced from publicly available industry reports (OAAA 2024, Madison Mediacom 2025, BCG India Gig Economy Report 2024). Uber-Ads is not an official Uber product.
-
-*Constructed scenarios are clearly flagged in the strategy workbook where real user research data does not exist.*
+*This is an independent PM portfolio project based on analogous OOH industry data and first-principles reasoning.*
