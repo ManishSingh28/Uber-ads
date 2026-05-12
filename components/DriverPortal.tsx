@@ -2,6 +2,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Camera, FileText, IndianRupee, Info, X, ChevronRight } from 'lucide-react';
+import { VEHICLE_TYPES } from '@/lib/data';
 
 export default function DriverPortal() {
   const [viewMode, setViewMode] = useState<'not-onboarded' | 'onboarded'>('not-onboarded');
@@ -43,9 +44,11 @@ export default function DriverPortal() {
                         <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Category</label>
                         <select defaultValue="" className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none">
                             <option value="" disabled>Select vehicle...</option>
-                            <option value="auto">Auto Rickshaw</option>
-                            <option value="sedan">Mini Truck</option>
-                            <option value="truck">Large truck</option>
+                            {VEHICLE_TYPES.map((type) => (
+                                <option key={type} value={type}>
+                                    {type}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

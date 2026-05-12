@@ -1,10 +1,7 @@
 // components/wizard/Step2Location.tsx
 import React from 'react';
 import { Library, X, Plus } from 'lucide-react';
-import { OOH_CITIES } from '@/lib/data';
-
-// Standard Uber vehicle classifications
-const VEHICLE_TYPES = ["Auto Rickshaw", "Mini Truck (6 tyres)", "Large Truck (10/12 tyres)"];
+import { OOH_CITIES, VEHICLE_TYPES } from '@/lib/data';
 
 export default function Step2Location({ formData, updateForm }: any) {
   
@@ -16,7 +13,7 @@ export default function Step2Location({ formData, updateForm }: any) {
     if (cityName && !currentCities.find((c: any) => c.name === cityName)) {
       const newCityConfig = {
         name: cityName,
-        vehicleType: "Auto Rickshaw", // Default selection
+        vehicleType: VEHICLE_TYPES[0], // Default selection
         count: 25 // Default count
       };
       updateForm({ cities: [...currentCities, newCityConfig] });

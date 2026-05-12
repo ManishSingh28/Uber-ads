@@ -75,3 +75,12 @@ export const performanceDataStore: Record<string, any> = {
     }
   }
 };
+
+export const VEHICLE_TYPES = [
+    "Auto Rickshaw", 
+    "Sedan Cabs",
+    "SUV Cab",
+    "Mini truck / Tata Ace",
+    "6-wheeler truck", 
+    "Large Truck (10/12-wheeler)"
+];
