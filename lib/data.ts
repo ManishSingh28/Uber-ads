@@ -1,10 +1,131 @@
 // lib/data.ts
 
 export const campaignDatabase = [
-  { id: "camp_001", title: "Summer Refresh '26", status: "Live", duration: "May 1 - Jun 15, 2026", fleetSize: "500 Autos", adKms: "42,500", views: "1.2M", brand: "Coca-Cola", imageUrl: "https://unsplash.com/photos/wQFmDhrvVSs/download?w=600" },
-  { id: "camp_002", title: "Sprite: Stay Cool", status: "Completed", duration: "Mar 1 - Apr 15, 2026", fleetSize: "1,200 Autos", adKms: "145,200", views: "4.8M", brand: "Sprite", imageUrl: "https://unsplash.com/photos/RH2ZA73kHiA/download?w=600" },
-  { id: "camp_003", title: "Coke Studio Takeover", status: "Completed", duration: "Jan 10 - Feb 10, 2026", fleetSize: "300 Cabs", adKms: "84,000", views: "2.1M", brand: "Coke Studio", imageUrl: "https://images.unsplash.com/photo-1605548230624-8d2d0419c517?auto=format&fit=crop&q=80&w=600" },
-  { id: "camp_004", title: "Smartwater: Festive Drop", status: "Draft", duration: "Pending Approval", fleetSize: "800 Cabs", adKms: "0", views: "0", brand: "Smartwater", imageUrl: "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&q=80&w=600" }
+  {
+    id: "camp_001",
+    title: "Summer Refresh '26",
+    status: "Live",
+    duration: "May 1 - Jun 15, 2026",
+    brand: "Coca-Cola",
+    category: "FMCG & Beverages",
+    costModel: "Cost Per Ad-KM",
+    fleetSize: "500 Autos",
+    zones: ["Koramangala", "Indiranagar", "MG Road / Brigade"],
+    city: "Bengaluru, KA",
+    adKms: "42,500",
+    views: "1.2M",
+    imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600",
+    metrics: {
+      totalVerifiedImpressions: 1200000,
+      adKmsRaw: 42500,
+      effectiveCPM: 38.4,
+      fleetUtilization: 91,
+      hardwareIntegrity: 98.2,
+      uniqueZoneReach: 3,
+      peakHour: "6–9 PM",
+      totalSpend: 1632000,
+      renewalIntent: true,
+    },
+    weeklyChart: {
+      labels: ["Week 1", "Week 2", "Week 3"],
+      adKms: [12400, 15800, 14300],
+      impressions: [340000, 480000, 380000],
+    },
+    zoneBreakdown: [
+      { zone: "Koramangala", impressions: 480000, fleet: 210, tier: "premium" },
+      { zone: "Indiranagar", impressions: 390000, fleet: 160, tier: "premium" },
+      { zone: "MG Road / Brigade", impressions: 330000, fleet: 130, tier: "premium" },
+    ],
+  },
+  {
+    id: "camp_002",
+    title: "Sprite: Stay Cool",
+    status: "Completed",
+    duration: "Mar 1 - Apr 15, 2026",
+    brand: "Sprite",
+    category: "FMCG & Beverages",
+    costModel: "Fixed Fleet Rate",
+    fleetSize: "1,200 Autos",
+    zones: ["HSR Layout", "Electronic City", "Whitefield"],
+    city: "Bengaluru, KA",
+    adKms: "145,200",
+    views: "4.8M",
+    imageUrl: "https://unsplash.com/photos/RH2ZA73kHiA/download?w=600",
+    metrics: {
+      totalVerifiedImpressions: 4800000,
+      adKmsRaw: 145200,
+      effectiveCPM: 42.5,
+      fleetUtilization: 87,
+      hardwareIntegrity: 97.6,
+      uniqueZoneReach: 3,
+      peakHour: "12–3 PM",
+      totalSpend: 6120000,
+      renewalIntent: true,
+    },
+    weeklyChart: {
+      labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
+      adKms: [21000, 24800, 26400, 25200, 27600, 20200],
+      impressions: [680000, 810000, 890000, 840000, 940000, 640000],
+    },
+    zoneBreakdown: [
+      { zone: "HSR Layout", impressions: 1820000, fleet: 480, tier: "standard" },
+      { zone: "Electronic City", impressions: 1540000, fleet: 420, tier: "standard" },
+      { zone: "Whitefield", impressions: 1440000, fleet: 300, tier: "premium" },
+    ],
+  },
+  {
+    id: "camp_003",
+    title: "Coke Studio Takeover",
+    status: "Completed",
+    duration: "Jan 10 - Feb 10, 2026",
+    brand: "Coke Studio",
+    category: "Entertainment & OTT",
+    costModel: "Fixed Fleet Rate",
+    fleetSize: "300 Cabs",
+    zones: ["Bandra West", "Lower Parel"],
+    city: "Mumbai, MH",
+    adKms: "84,000",
+    views: "2.1M",
+    imageUrl: "https://images.unsplash.com/photo-1605548230624-8d2d0419c517?auto=format&fit=crop&q=80&w=600",
+    metrics: {
+      totalVerifiedImpressions: 2100000,
+      adKmsRaw: 84000,
+      effectiveCPM: 51.2,
+      fleetUtilization: 94,
+      hardwareIntegrity: 99.1,
+      uniqueZoneReach: 2,
+      peakHour: "7–10 PM",
+      totalSpend: 4301000,
+      renewalIntent: false,
+    },
+    weeklyChart: {
+      labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+      adKms: [19200, 22400, 23100, 19300],
+      impressions: [470000, 560000, 590000, 480000],
+    },
+    zoneBreakdown: [
+      { zone: "Bandra West", impressions: 1260000, fleet: 178, tier: "premium" },
+      { zone: "Lower Parel", impressions: 840000, fleet: 122, tier: "premium" },
+    ],
+  },
+  {
+    id: "camp_004",
+    title: "Smartwater: Festive Drop",
+    status: "Draft",
+    duration: "Pending Approval",
+    brand: "Smartwater",
+    category: "FMCG & Beverages",
+    costModel: "",
+    fleetSize: "800 Cabs",
+    zones: [],
+    city: "",
+    adKms: "0",
+    views: "0",
+    imageUrl: "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&q=80&w=600",
+    metrics: null,
+    weeklyChart: null,
+    zoneBreakdown: null,
+  },
 ];
 
 // NEW DATA CONSTANTS FOR THE WIZARD
@@ -84,3 +205,49 @@ export const VEHICLE_TYPES = [
     "6-wheeler truck", 
     "Large Truck (10/12-wheeler)"
 ];
+
+// H3 Zone definitions per city with verified impression data
+export const H3_ZONES: Record<string, { id: string; label: string; tier: 'premium' | 'standard'; verifiedImpressions: number; activeFleet: number; activeBrand: string | null }[]> = {
+  "Bengaluru, KA": [
+    { id: "blr-h3-001", label: "Koramangala", tier: "premium", verifiedImpressions: 284000, activeFleet: 142, activeBrand: "Coca-Cola India" },
+    { id: "blr-h3-002", label: "Indiranagar", tier: "premium", verifiedImpressions: 211000, activeFleet: 98, activeBrand: null },
+    { id: "blr-h3-003", label: "Whitefield", tier: "premium", verifiedImpressions: 196000, activeFleet: 113, activeBrand: null },
+    { id: "blr-h3-004", label: "HSR Layout", tier: "standard", verifiedImpressions: 143000, activeFleet: 78, activeBrand: "Sprite" },
+    { id: "blr-h3-005", label: "Electronic City", tier: "standard", verifiedImpressions: 128000, activeFleet: 65, activeBrand: null },
+    { id: "blr-h3-006", label: "MG Road / Brigade", tier: "premium", verifiedImpressions: 312000, activeFleet: 164, activeBrand: null },
+  ],
+  "Mumbai, MH": [
+    { id: "mum-h3-001", label: "Bandra West", tier: "premium", verifiedImpressions: 341000, activeFleet: 178, activeBrand: null },
+    { id: "mum-h3-002", label: "Lower Parel", tier: "premium", verifiedImpressions: 289000, activeFleet: 145, activeBrand: null },
+    { id: "mum-h3-003", label: "Andheri East", tier: "standard", verifiedImpressions: 198000, activeFleet: 102, activeBrand: null },
+    { id: "mum-h3-004", label: "Powai", tier: "standard", verifiedImpressions: 167000, activeFleet: 88, activeBrand: null },
+  ],
+  "Delhi NCR": [
+    { id: "del-h3-001", label: "Connaught Place", tier: "premium", verifiedImpressions: 398000, activeFleet: 201, activeBrand: null },
+    { id: "del-h3-002", label: "Gurugram Cyber City", tier: "premium", verifiedImpressions: 276000, activeFleet: 139, activeBrand: null },
+    { id: "del-h3-003", label: "Noida Sector 62", tier: "standard", verifiedImpressions: 154000, activeFleet: 81, activeBrand: null },
+  ],
+  "Hyderabad, TS": [
+    { id: "hyd-h3-001", label: "HITEC City", tier: "premium", verifiedImpressions: 243000, activeFleet: 124, activeBrand: null },
+    { id: "hyd-h3-002", label: "Banjara Hills", tier: "premium", verifiedImpressions: 187000, activeFleet: 96, activeBrand: null },
+    { id: "hyd-h3-003", label: "Gachibowli", tier: "standard", verifiedImpressions: 142000, activeFleet: 73, activeBrand: null },
+  ],
+  "Chennai, TN": [
+    { id: "che-h3-001", label: "Anna Nagar", tier: "premium", verifiedImpressions: 198000, activeFleet: 102, activeBrand: null },
+    { id: "che-h3-002", label: "OMR Tech Corridor", tier: "standard", verifiedImpressions: 156000, activeFleet: 82, activeBrand: null },
+  ],
+  "Pune, MH": [
+    { id: "pun-h3-001", label: "Hinjewadi IT Park", tier: "premium", verifiedImpressions: 178000, activeFleet: 91, activeBrand: null },
+    { id: "pun-h3-002", label: "Koregaon Park", tier: "standard", verifiedImpressions: 134000, activeFleet: 69, activeBrand: null },
+  ],
+};
+
+// Brands currently active in zones — used for exclusivity conflict detection
+export const ACTIVE_BRAND_ZONES: Record<string, string[]> = {
+  "Coca-Cola India": ["blr-h3-001"],
+  "Sprite": ["blr-h3-004"],
+};
+
+// Driver eligibility rules
+export const ELIGIBLE_VEHICLE_TYPES = ["Auto Rickshaw", "Sedan Cabs", "SUV Cab"];
+export const ELIGIBLE_ZONES = ["Strictly Within City Limits"];

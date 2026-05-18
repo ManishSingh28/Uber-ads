@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Uber Ads India",
   description: "Maximize your brand’s reach on the road with India's largest mobility fleet.",
+  icons: {
+    icon: "/your-logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -18,8 +18,17 @@ export default function Step3Review({ formData }: any) {
                 { 
                   label: 'Selected Zones', 
                   val: formData.cities?.length > 0 
-                        ? formData.cities.map((c: any) => `${c.name} (${c.count})`).join(', ') 
+                        ? formData.cities.map((c: any) => `${c.zoneLabel || c.name} (${c.count} vehicles)`).join(', ') 
                         : "None" 
+                },
+                {
+                  label: 'Est. GPS-Verified Impressions',
+                  val: formData.cities?.length > 0
+                    ? (() => {
+                        const total = formData.cities.reduce((sum: number, c: any) => sum + (c.verifiedImpressions || 0), 0);
+                        return total > 0 ? `${(total / 100000).toFixed(1)}L / month` : 'N/A';
+                      })()
+                    : 'N/A'
                 },
                 { label: 'Artwork Status', val: 'Awaiting Upload', accent: true }
             ].map((item, i) => (

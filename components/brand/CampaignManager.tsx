@@ -85,7 +85,14 @@ export default function CampaignManager({ setActivePage, setSelectedCampaign, se
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="uber-card p-6"><p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Active Fleet</p><p className="text-3xl font-bold">{currentData.metrics.active}</p></div>
           <div className="uber-card p-6"><p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Verified Ad-KMs</p><p className="text-3xl font-bold">{currentData.metrics.adKms}</p></div>
-          <div className="uber-card p-6"><p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Impressions</p><p className="text-3xl font-bold text-zinc-900">{currentData.metrics.impressions}</p></div>
+          <div className="uber-card p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase">H3-Verified Impressions</p>
+              <span className="text-[8px] font-black bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full uppercase">GPS ✓</span>
+            </div>
+            <p className="text-3xl font-bold text-zinc-900">{currentData.metrics.impressions}</p>
+            <p className="text-[9px] text-zinc-400 font-bold mt-1">Hexagonal spatial index · Not estimated</p>
+          </div>
           <div className="uber-card p-6"><p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Integrity</p><p className="text-3xl font-bold text-zinc-900">{currentData.metrics.fraud}</p></div>
       </div>
 
