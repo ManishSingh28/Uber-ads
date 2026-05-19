@@ -1,64 +1,123 @@
 // components/wizard/Step1Details.tsx
-import React from 'react';
-import { BRANDS, CATEGORIES, COST_MODELS } from '@/lib/data';
-import { AlertCircle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { BRANDS, CATEGORIES, COST_MODELS, BRAND_PROFILES } from '@/lib/data';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function Step1Details({ formData, updateForm }: any) {
   const minBudget = 15000;
-  const isBudgetTooLow = formData.budget > 0 && formData.budget < minBudget;
-
-  const today = new Date().toISOString().split('T')[0];
+  const isBudgetTooLow  = formData.budget > 0 && formData.budget < minBudget;
+  const today           = new Date().toISOString().split('T')[0];
   const isEndBeforeStart = formData.startDate && formData.endDate && formData.endDate < formData.startDate;
-  const isStartInPast = formData.startDate && formData.startDate < today;
+  const isStartInPast   = formData.startDate && formData.startDate < today;
+
+  const profile = formData.brand ? BRAND_PROFILES[formData.brand] : null;
+
+  // When brand changes, pre-populate profile fields
+  useEffect(() => {
+    if (profile) {
+      updateForm({
+        category: profile.category,
+        city: profile.city,
+        gstNumber: profile.gstNumber,
+        brandLogoUrl: profile.logo,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.brand]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+
+      {/* Brand Profile Pre-fill Notice */}
+      {profile && (
+        <div className="flex items-start gap-3 bg-green-50 border border-green-100 rounded-xl p-4 animate-in fade-in">
+          <CheckCircle size={15} className="text-green-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-[11px] font-black text-green-700 uppercase tracking-widest mb-0.5">Brand Profile Loaded</p>
+            <p className="text-xs font-medium text-green-700">
+              {profile.name} · GST: {profile.gstNumber} · {profile.city}. Category and valid zones are pre-filtered.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div>
         <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Campaign Name</label>
-        <input 
-          type="text" placeholder="e.g. Q3 Summer Refresh" 
+        <input
+          type="text" placeholder="e.g. Q3 Summer Refresh"
           value={formData.name || ''} onChange={(e) => updateForm({ name: e.target.value })}
-          className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-black transition-all font-bold text-zinc-900" 
+          className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-black transition-all font-bold text-zinc-900"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-8">
         <div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Brand Selection</label>
-          <select value={formData.brand || ''} onChange={(e) => updateForm({ brand: e.target.value })} className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none">
+          <select
+            value={formData.brand || ''}
+            onChange={(e) => updateForm({ brand: e.target.value })}
+            className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none"
+          >
             <option value="" disabled>Select Brand...</option>
             {BRANDS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Category</label>
-          <select value={formData.category || ''} onChange={(e) => updateForm({ category: e.target.value })} className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none">
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">
+            Category
+            {profile && <span className="ml-1.5 text-green-600 text-[9px] font-black">AUTO-FILLED</span>}
+          </label>
+          <select
+            value={formData.category || ''}
+            onChange={(e) => updateForm({ category: e.target.value })}
+            className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none"
+          >
             <option value="" disabled>Select Category...</option>
             {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
         </div>
       </div>
 
+      {/* GST (pre-filled from profile, editable) */}
+      {profile && (
+        <div>
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">
+            GST Number
+            <span className="ml-1.5 text-green-600 text-[9px] font-black">AUTO-FILLED</span>
+          </label>
+          <input
+            type="text"
+            value={formData.gstNumber || profile.gstNumber}
+            onChange={(e) => updateForm({ gstNumber: e.target.value })}
+            className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-black transition-all font-bold text-zinc-900 tracking-wider"
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-8">
         <div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Cost Model</label>
-          <select value={formData.costModel || ''} onChange={(e) => updateForm({ costModel: e.target.value })} className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none">
+          <select
+            value={formData.costModel || ''}
+            onChange={(e) => updateForm({ costModel: e.target.value })}
+            className="w-full p-4 bg-zinc-50 border border-transparent rounded-xl font-bold text-zinc-900 outline-none focus:bg-white focus:border-black appearance-none"
+          >
             <option value="" disabled>Select Cost Model...</option>
             {COST_MODELS.map(model => <option key={model.id} value={model.id}>{model.label}</option>)}
           </select>
         </div>
-        
+
         <div className="relative">
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Daily Budget (₹)</label>
-          <input 
-            type="number" placeholder="Enter amount..." 
+          <input
+            type="number" placeholder="Enter amount..."
             value={formData.budget || ''} onChange={(e) => updateForm({ budget: Number(e.target.value) })}
-            className={`w-full p-4 border rounded-xl font-bold outline-none transition-all ${isBudgetTooLow ? 'border-red-500 bg-red-50/20' : 'bg-zinc-50 border-transparent focus:bg-white focus:border-black'}`} 
+            className={`w-full p-4 border rounded-xl font-bold outline-none transition-all ${isBudgetTooLow ? 'border-red-500 bg-red-50/20' : 'bg-zinc-50 border-transparent focus:bg-white focus:border-black'}`}
           />
           {isBudgetTooLow && (
-              <div className="absolute top-full mt-2 left-0 flex items-center gap-1.5 text-red-600 text-[10px] font-bold uppercase tracking-wider">
-                  <AlertCircle size={12} /> Minimum budget is ₹15,000.
-              </div>
+            <div className="absolute top-full mt-2 left-0 flex items-center gap-1.5 text-red-600 text-[10px] font-bold uppercase tracking-wider">
+              <AlertCircle size={12} /> Minimum budget is ₹15,000.
+            </div>
           )}
         </div>
       </div>
@@ -67,8 +126,7 @@ export default function Step1Details({ formData, updateForm }: any) {
         <div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Start Date</label>
           <input
-            type="date"
-            min={today}
+            type="date" min={today}
             value={formData.startDate || ''}
             onChange={(e) => updateForm({ startDate: e.target.value })}
             className={`w-full p-4 border rounded-xl font-bold text-zinc-900 uppercase text-xs outline-none transition-all ${isStartInPast ? 'border-red-400 bg-red-50/20' : 'bg-zinc-50 border-transparent focus:bg-white focus:border-black'}`}
@@ -82,8 +140,7 @@ export default function Step1Details({ formData, updateForm }: any) {
         <div>
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">End Date</label>
           <input
-            type="date"
-            min={formData.startDate || today}
+            type="date" min={formData.startDate || today}
             value={formData.endDate || ''}
             onChange={(e) => updateForm({ endDate: e.target.value })}
             className={`w-full p-4 border rounded-xl font-bold text-zinc-900 uppercase text-xs outline-none transition-all ${isEndBeforeStart ? 'border-red-400 bg-red-50/20' : 'bg-zinc-50 border-transparent focus:bg-white focus:border-black'}`}

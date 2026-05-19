@@ -1,69 +1,154 @@
 // components/DriverPortal.tsx
 "use client";
-import React, { useState } from 'react';
-import { Camera, FileText, IndianRupee, X, AlertTriangle, CheckCircle, Clock, Star, ChevronDown, ChevronUp, Send } from 'lucide-react';
-import { VEHICLE_TYPES, ELIGIBLE_VEHICLE_TYPES, ELIGIBLE_ZONES, driverEarningsData } from '@/lib/data';
+import React, { useState, useRef } from 'react';
+import {
+  Camera, FileText, IndianRupee, X, AlertTriangle, CheckCircle, Clock,
+  Star, ChevronDown, ChevronUp, Send, Bell, Shield, Layers, Upload,
+} from 'lucide-react';
+import {
+  VEHICLE_TYPES, VEHICLE_MODELS, ELIGIBLE_VEHICLE_TYPES, ELIGIBLE_ZONES,
+  BANGALORE_ZONES, driverEarningsData, getBannerConditionScore, useInventoryStore,
+} from '@/lib/data';
 
 type OnboardingState = 'form' | 'ineligible' | 'waitlist-success' | 'onboarded';
+type OnboardingStep  = 1 | 2 | 3 | 4;
 
 const TESTIMONIALS = [
-  { name: "Ravi K.", city: "Koramangala", vehicle: "Sedan", earnings: "₹3,850/mo", quote: "Started earning extra without changing my route. The wrap team came to my home pin — zero inconvenience." },
+  { name: "Ravi K.",    city: "Koramangala", vehicle: "Sedan", earnings: "₹3,850/mo", quote: "Started earning extra without changing my route. The wrap team came to my home pin — zero inconvenience." },
   { name: "Suresh M.", city: "Whitefield",   vehicle: "Auto",  earnings: "₹2,940/mo", quote: "First month payout was credited on the 5th. No delays. Best passive income I've found on the platform." },
-  { name: "Kavitha R.", city: "HSR Layout",  vehicle: "SUV",   earnings: "₹4,120/mo", quote: "I was skeptical at first. Three campaigns later, it's become my favourite part of driving with Uber." },
+  { name: "Kavitha R.",city: "HSR Layout",   vehicle: "SUV",   earnings: "₹4,120/mo", quote: "I was skeptical at first. Three campaigns later, it's become my favourite part of driving with Uber." },
+];
+
+const STEP_LABELS: Record<OnboardingStep, string> = {
+  1: "Eligibility Check",
+  2: "Document Verification",
+  3: "Inspection Scheduled",
+  4: "Installation Complete",
+};
+
+const INSPECTION_SLOTS = [
+  'Mon May 20 · 10:00 AM (Home visit)',
+  'Mon May 20 · 2:00 PM (Home visit)',
+  'Tue May 21 · 11:00 AM (Home visit)',
+  'Tue May 21 · 4:00 PM (Service centre — Koramangala)',
+  'Wed May 22 · 9:00 AM (Home visit)',
 ];
 
 export default function DriverPortal() {
-  const [viewMode,      setViewMode]      = useState<'not-onboarded' | 'onboarded'>('not-onboarded');
+  const [viewMode,        setViewMode]        = useState<'not-onboarded' | 'onboarded'>('not-onboarded');
   const [onboardingState, setOnboardingState] = useState<OnboardingState>('form');
-  const [campaignState, setCampaignState] = useState<'pending' | 'active'>('pending');
+  const [onboardingStep,  setOnboardingStep]  = useState<OnboardingStep>(1);
+  const [campaignState,   setCampaignState]   = useState<'pending' | 'active'>('pending');
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [isCameraOpen,  setIsCameraOpen]  = useState(false);
-  const [earningsTab,   setEarningsTab]   = useState<'breakdown' | 'history'>('breakdown');
-  const [showNPS,       setShowNPS]       = useState(false);
-  const [npsScore,      setNpsScore]      = useState<number | null>(null);
-  const [npsFeedback,   setNpsFeedback]   = useState('');
-  const [npsSubmitted,  setNpsSubmitted]  = useState(false);
-  const [inspectionBooked, setInspectionBooked] = useState(false);
-  const [selectedSlot,  setSelectedSlot]  = useState('');
+  const [isCameraOpen,    setIsCameraOpen]    = useState(false);
+  const [earningsTab,     setEarningsTab]     = useState<'breakdown' | 'history'>('breakdown');
+  const [showNPS,         setShowNPS]         = useState(false);
+  const [npsScore,        setNpsScore]        = useState<number | null>(null);
+  const [npsFeedback,     setNpsFeedback]     = useState('');
+  const [npsSubmitted,    setNpsSubmitted]    = useState(false);
+  const [inspectionBooked,setInspectionBooked]= useState(false);
+  const [selectedSlot,    setSelectedSlot]    = useState('');
+  const [showNudge,       setShowNudge]       = useState(true);
+  const [rcUploaded,      setRcUploaded]      = useState(false);
+  const [permitUploaded,  setPermitUploaded]  = useState(false);
 
-  // Form state
-  const [vehicleType, setVehicleType] = useState('');
-  const [drivingZone, setDrivingZone] = useState('');
-  const [weeklyTrips, setWeeklyTrips] = useState(0);
+  // Extended form state
+  const [vehicleType,     setVehicleType]     = useState('');
+  const [vehicleModel,    setVehicleModel]    = useState('');
+  const [vehicleYear,     setVehicleYear]     = useState('');
+  const [rcNumber,        setRcNumber]        = useState('');
+  const [licenseNumber,   setLicenseNumber]   = useState('');
+  const [uberDriverId,    setUberDriverId]    = useState('UBD-BLR-98421'); // pre-filled mock
+  const [selectedZones,   setSelectedZones]   = useState<string[]>([]);
+  const [drivingZone,     setDrivingZone]     = useState('');
+  const [weeklyTrips,     setWeeklyTrips]     = useState(0);
+  const [dpdpConsent,     setDpdpConsent]     = useState(false);
+
+  const rcInputRef     = useRef<HTMLInputElement>(null);
+  const permitInputRef = useRef<HTMLInputElement>(null);
+
+  const acceptCampaign = useInventoryStore((s) => s.acceptCampaign);
+
+  const availableModels = vehicleType ? (VEHICLE_MODELS[vehicleType] || []) : [];
 
   const estimatedMonthly = weeklyTrips > 0
     ? Math.round(weeklyTrips * 4 * (vehicleType === 'Auto Rickshaw' ? 38 : vehicleType === 'Sedan Cabs' ? 52 : vehicleType === 'SUV Cab' ? 65 : 0))
     : 0;
 
+  const toggleZone = (zone: string) => {
+    setSelectedZones(prev =>
+      prev.includes(zone) ? prev.filter(z => z !== zone) : [...prev, zone],
+    );
+  };
+
+  const isStep1FormValid = vehicleType && drivingZone && rcNumber.length >= 6 && licenseNumber.length >= 6 && dpdpConsent;
+
   const handleSubmit = () => {
     const isVehicleEligible = ELIGIBLE_VEHICLE_TYPES.includes(vehicleType);
     const isZoneEligible    = ELIGIBLE_ZONES.includes(drivingZone);
     if (isVehicleEligible && isZoneEligible) {
-      setViewMode('onboarded');
-      setOnboardingState('onboarded');
+      // Step 1 done — advance stepper to doc verification
+      setOnboardingStep(2);
     } else {
       setOnboardingState('ineligible');
     }
   };
 
-  const handleExitCampaign = () => {
-    setCampaignState('pending');
-    setShowExitConfirm(false);
+  const handleDocVerificationDone = () => {
+    if (rcUploaded && permitUploaded) setOnboardingStep(3);
   };
 
-  const handleNPSSubmit = () => {
-    if (npsScore !== null) setNpsSubmitted(true);
+  const handleInspectionBook = () => {
+    setInspectionBooked(true);
+    setOnboardingStep(3);
   };
 
-  const data = driverEarningsData;
+  const handleCompleteOnboarding = () => {
+    setViewMode('onboarded');
+    setOnboardingState('onboarded');
+  };
 
-  const INSPECTION_SLOTS = [
-    'Mon May 20 · 10:00 AM (Home visit)',
-    'Mon May 20 · 2:00 PM (Home visit)',
-    'Tue May 21 · 11:00 AM (Home visit)',
-    'Tue May 21 · 4:00 PM (Service centre — Koramangala)',
-    'Wed May 22 · 9:00 AM (Home visit)',
-  ];
+  const handleAcceptCampaign = () => {
+    acceptCampaign('current-driver', 'camp_001');
+    setCampaignState('active');
+  };
+
+  const handleExitCampaign = () => { setCampaignState('pending'); setShowExitConfirm(false); };
+  const handleNPSSubmit    = () => { if (npsScore !== null) setNpsSubmitted(true); };
+
+  const data           = driverEarningsData;
+  const conditionScore = getBannerConditionScore();
+
+  const CURRENT_YEAR = 2026;
+  const YEARS = Array.from({ length: 20 }, (_, i) => String(CURRENT_YEAR - i));
+
+  // ─── ONBOARDING STEPPER ────────────────────────────────────────────────────
+  const renderStepper = (activeStep: OnboardingStep) => (
+    <div className="flex items-center mb-8 relative">
+      <div className="absolute left-0 right-0 top-4 h-0.5 bg-zinc-100 z-0" />
+      {([1, 2, 3, 4] as OnboardingStep[]).map((step) => {
+        const done    = activeStep > step;
+        const current = activeStep === step;
+        const locked  = activeStep < step;
+        return (
+          <div key={step} className="flex-1 flex flex-col items-center relative z-10">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all ${
+              done    ? 'bg-green-600 border-green-600 text-white' :
+              current ? 'bg-black border-black text-white' :
+                        'bg-white border-zinc-200 text-zinc-400'
+            }`}>
+              {done ? <CheckCircle size={14} /> : step}
+            </div>
+            <p className={`text-[9px] font-bold mt-1.5 text-center leading-tight max-w-[60px] ${
+              current ? 'text-black' : done ? 'text-green-600' : 'text-zinc-400'
+            }`}>
+              {STEP_LABELS[step]}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="bg-zinc-50 min-h-[calc(100vh-64px)] pb-24 font-sans">
@@ -88,16 +173,51 @@ export default function DriverPortal() {
 
       <div className="max-w-md mx-auto p-4 space-y-6">
 
-        {/* ══ ONBOARDING ══ */}
+        {/* ══ NOT ONBOARDED ══ */}
         {viewMode === 'not-onboarded' && (
           <>
-            {/* FORM */}
-            {onboardingState === 'form' && (
+            {/* ── App-Open Earnings Nudge Banner ── */}
+            {onboardingState === 'form' && showNudge && (
+              <div className="relative bg-gradient-to-br from-black to-zinc-800 text-white rounded-2xl p-5 shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2">
+                <button
+                  onClick={() => setShowNudge(false)}
+                  className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
+                >
+                  <X size={14} />
+                </button>
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <Bell size={16} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Earnings Opportunity</p>
+                    <p className="font-bold text-base leading-snug mb-1">
+                      You could earn <span className="text-green-400">₹3,200/month</span> extra with Uber Ads
+                    </p>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      Based on your average of 18 trips/day in Koramangala — no extra hours needed.
+                    </p>
+                    <button
+                      onClick={() => setShowNudge(false)}
+                      className="mt-3 bg-white text-black text-xs font-black px-4 py-2 rounded-lg active:scale-95 transition-all"
+                    >
+                      See How It Works →
+                    </button>
+                  </div>
+                </div>
+                <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
+              </div>
+            )}
+
+            {/* ── FORM (Step 1) ── */}
+            {onboardingState === 'form' && onboardingStep === 1 && (
               <div className="animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-3xl font-bold mb-1 tracking-tight">Earn with Uber Ads</h2>
                 <p className="text-zinc-500 mb-6 text-sm">Monetize your vehicle while you drive. Simple, compliant, passive income.</p>
 
-                {/* Social proof */}
+                {renderStepper(1)}
+
+                {/* Testimonials */}
                 <div className="space-y-3 mb-8">
                   {TESTIMONIALS.map((t, i) => (
                     <div key={i} className="bg-white border border-zinc-100 rounded-2xl p-4">
@@ -114,12 +234,13 @@ export default function DriverPortal() {
                 </div>
 
                 <div className="space-y-4">
+
                   {/* Vehicle Category */}
                   <div className="bg-white p-5 rounded-2xl border border-zinc-200">
-                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Category</label>
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Category *</label>
                     <select
                       value={vehicleType}
-                      onChange={(e) => setVehicleType(e.target.value)}
+                      onChange={(e) => { setVehicleType(e.target.value); setVehicleModel(''); }}
                       className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none"
                     >
                       <option value="" disabled>Select vehicle...</option>
@@ -132,9 +253,98 @@ export default function DriverPortal() {
                     )}
                   </div>
 
+                  {/* Vehicle Model */}
+                  {vehicleType && availableModels.length > 0 && (
+                    <div className="bg-white p-5 rounded-2xl border border-zinc-200 animate-in fade-in">
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Model *</label>
+                      <select
+                        value={vehicleModel}
+                        onChange={(e) => setVehicleModel(e.target.value)}
+                        className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none"
+                      >
+                        <option value="" disabled>Select model...</option>
+                        {availableModels.map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Vehicle Year */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Year of Manufacture *</label>
+                    <select
+                      value={vehicleYear}
+                      onChange={(e) => setVehicleYear(e.target.value)}
+                      className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none"
+                    >
+                      <option value="" disabled>Select year...</option>
+                      {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+
+                  {/* RC Number */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Registration (RC Number) *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. KA01AB1234"
+                      value={rcNumber}
+                      onChange={(e) => setRcNumber(e.target.value.toUpperCase())}
+                      className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none text-zinc-900 uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal"
+                    />
+                  </div>
+
+                  {/* Driver License */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Driver License Number *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. KA0120220001234"
+                      value={licenseNumber}
+                      onChange={(e) => setLicenseNumber(e.target.value.toUpperCase())}
+                      className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none text-zinc-900 uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal"
+                    />
+                  </div>
+
+                  {/* Uber Driver ID (pre-filled) */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Uber Driver ID</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={uberDriverId}
+                        readOnly
+                        className="w-full py-2 border-b border-zinc-100 font-bold bg-transparent outline-none text-zinc-900"
+                      />
+                      <span className="text-[9px] font-black text-green-700 bg-green-50 px-2 py-1 rounded-lg shrink-0">Pre-filled</span>
+                    </div>
+                    <p className="text-[10px] text-zinc-400 font-medium mt-1">Auto-populated from your Uber driver profile.</p>
+                  </div>
+
+                  {/* Operating Zones */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Primary Operating Zones</label>
+                    <p className="text-[10px] text-zinc-400 font-medium mb-3">Select all zones you regularly drive in.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {BANGALORE_ZONES.map(zone => (
+                        <button
+                          key={zone}
+                          type="button"
+                          onClick={() => toggleZone(zone)}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                            selectedZones.includes(zone)
+                              ? 'bg-black text-white border-black'
+                              : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-400'
+                          }`}
+                        >
+                          {zone}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Driving Zone */}
                   <div className="bg-white p-5 rounded-2xl border border-zinc-200">
-                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Driving Location / Range</label>
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Driving Range *</label>
                     <select
                       value={drivingZone}
                       onChange={(e) => setDrivingZone(e.target.value)}
@@ -168,58 +378,152 @@ export default function DriverPortal() {
                     )}
                   </div>
 
-                  {/* Documentation */}
+                  {/* DPDP Consent */}
                   <div className="bg-white p-5 rounded-2xl border border-zinc-200">
-                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Documentation</label>
-                    <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center hover:bg-zinc-50 cursor-pointer transition-colors">
-                      <FileText size={20} className="mx-auto mb-2 text-zinc-400" />
-                      <p className="text-sm font-bold">Scan Permit & RC</p>
-                    </div>
-                  </div>
-
-                  {/* Inspection scheduler */}
-                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
-                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Schedule Mobile Inspection</label>
-                    <p className="text-[10px] text-zinc-400 font-medium mb-4">Optional — a mobile van comes to your location. Saves a trip to the service centre.</p>
-                    {!inspectionBooked ? (
-                      <div className="space-y-2">
-                        {INSPECTION_SLOTS.map(slot => (
-                          <button
-                            key={slot}
-                            onClick={() => setSelectedSlot(slot)}
-                            className={`w-full text-left px-4 py-3 rounded-xl border text-xs font-bold transition-all ${selectedSlot === slot ? 'border-black bg-zinc-50' : 'border-zinc-100 hover:border-zinc-300'}`}
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                        {selectedSlot && (
-                          <button
-                            onClick={() => setInspectionBooked(true)}
-                            className="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold text-sm mt-2 active:scale-95 transition-all"
-                          >
-                            Confirm Slot
-                          </button>
-                        )}
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <div
+                        onClick={() => setDpdpConsent(!dpdpConsent)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${dpdpConsent ? 'bg-black border-black' : 'border-zinc-300'}`}
+                      >
+                        {dpdpConsent && <CheckCircle size={12} className="text-white" />}
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 text-xs font-bold">
-                        <CheckCircle size={14} /> Inspection booked · {selectedSlot}
+                      <div>
+                        <p className="text-xs font-bold text-zinc-900 leading-snug">
+                          I consent to Uber collecting and processing my vehicle and location data for advertising purposes under the Digital Personal Data Protection (DPDP) Act, 2023. *
+                        </p>
+                        <p className="text-[10px] text-zinc-400 font-medium mt-1">
+                          Your data is used solely for campaign assignment and earnings calculation. See Uber's Privacy Policy.
+                        </p>
                       </div>
-                    )}
+                    </label>
                   </div>
 
                   <button
                     onClick={handleSubmit}
-                    disabled={!vehicleType || !drivingZone}
-                    className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    disabled={!isStep1FormValid}
+                    className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
                   >
-                    Check Eligibility & Submit
+                    Check Eligibility & Continue
                   </button>
                 </div>
               </div>
             )}
 
-            {/* INELIGIBLE */}
+            {/* ── STEP 2: Document Verification ── */}
+            {onboardingState === 'form' && onboardingStep === 2 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4">
+                <h2 className="text-2xl font-bold mb-1 tracking-tight">Document Verification</h2>
+                <p className="text-zinc-500 mb-6 text-sm">Upload your RC and permit to proceed.</p>
+
+                {renderStepper(2)}
+
+                <div className="space-y-4">
+                  {/* RC Upload */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Registration (RC)</label>
+                    <input ref={rcInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={() => setRcUploaded(true)} />
+                    {rcUploaded ? (
+                      <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 text-xs font-bold">
+                        <CheckCircle size={14} /> RC uploaded successfully
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => rcInputRef.current?.click()}
+                        className="w-full border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center hover:bg-zinc-50 cursor-pointer transition-colors"
+                      >
+                        <Upload size={18} className="mx-auto mb-2 text-zinc-400" />
+                        <p className="text-sm font-bold text-zinc-700">Upload RC Document</p>
+                        <p className="text-[10px] text-zinc-400 mt-1">PDF or image, max 5 MB</p>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Permit Upload */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Vehicle Permit</label>
+                    <input ref={permitInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={() => setPermitUploaded(true)} />
+                    {permitUploaded ? (
+                      <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 text-xs font-bold">
+                        <CheckCircle size={14} /> Permit uploaded successfully
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => permitInputRef.current?.click()}
+                        className="w-full border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center hover:bg-zinc-50 cursor-pointer transition-colors"
+                      >
+                        <FileText size={18} className="mx-auto mb-2 text-zinc-400" />
+                        <p className="text-sm font-bold text-zinc-700">Upload Permit</p>
+                        <p className="text-[10px] text-zinc-400 mt-1">PDF or image, max 5 MB</p>
+                      </button>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleDocVerificationDone}
+                    disabled={!rcUploaded || !permitUploaded}
+                    className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+                  >
+                    Continue to Inspection →
+                  </button>
+                  <button onClick={() => setOnboardingStep(1)} className="w-full text-zinc-500 text-sm font-bold py-2 hover:text-black transition-colors">
+                    ← Back
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── STEP 3: Inspection Scheduling ── */}
+            {onboardingState === 'form' && onboardingStep === 3 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4">
+                <h2 className="text-2xl font-bold mb-1 tracking-tight">Schedule Inspection</h2>
+                <p className="text-zinc-500 mb-6 text-sm">A mobile van comes to your location. Pick a slot.</p>
+
+                {renderStepper(3)}
+
+                <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Available Slots</label>
+                  <p className="text-[10px] text-zinc-400 font-medium mb-4">Home visit slots available near your registered zone.</p>
+                  {!inspectionBooked ? (
+                    <div className="space-y-2">
+                      {INSPECTION_SLOTS.map(slot => (
+                        <button
+                          key={slot}
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`w-full text-left px-4 py-3 rounded-xl border text-xs font-bold transition-all ${selectedSlot === slot ? 'border-black bg-zinc-50' : 'border-zinc-100 hover:border-zinc-300'}`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                      {selectedSlot && (
+                        <button
+                          onClick={handleInspectionBook}
+                          className="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold text-sm mt-2 active:scale-95 transition-all"
+                        >
+                          Confirm Slot
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 text-xs font-bold">
+                      <CheckCircle size={14} /> Inspection booked · {selectedSlot}
+                    </div>
+                  )}
+                </div>
+
+                {inspectionBooked && (
+                  <button
+                    onClick={handleCompleteOnboarding}
+                    className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg mt-4 active:scale-95 transition-all"
+                  >
+                    View Dashboard →
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* ── INELIGIBLE ── */}
             {onboardingState === 'ineligible' && (
               <div className="animate-in fade-in slide-in-from-bottom-4">
                 <div className="bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm text-center mb-6">
@@ -253,14 +557,14 @@ export default function DriverPortal() {
                   <button onClick={() => setOnboardingState('waitlist-success')} className="w-full bg-white text-black py-4 rounded-xl font-bold text-base active:scale-95 transition-all">
                     Notify Me When I'm Eligible
                   </button>
-                  <button onClick={() => setOnboardingState('form')} className="mt-3 text-zinc-500 text-sm font-bold underline underline-offset-4 hover:text-white transition-colors">
+                  <button onClick={() => { setOnboardingState('form'); setOnboardingStep(1); }} className="mt-3 text-zinc-500 text-sm font-bold underline underline-offset-4 hover:text-white transition-colors">
                     ← Edit my details
                   </button>
                 </div>
               </div>
             )}
 
-            {/* WAITLIST CONFIRMED */}
+            {/* ── WAITLIST CONFIRMED ── */}
             {onboardingState === 'waitlist-success' && (
               <div className="animate-in fade-in slide-in-from-bottom-4 text-center pt-12">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -307,7 +611,7 @@ export default function DriverPortal() {
                 </div>
                 <div className="flex gap-3">
                   <button className="w-14 h-14 bg-zinc-100 rounded-xl flex items-center justify-center text-zinc-500"><X size={24} /></button>
-                  <button onClick={() => setCampaignState('active')} className="flex-1 bg-black text-white rounded-xl font-bold text-lg py-4 active:scale-95 transition-all">Accept Offer</button>
+                  <button onClick={handleAcceptCampaign} className="flex-1 bg-black text-white rounded-xl font-bold text-lg py-4 active:scale-95 transition-all">Accept Offer</button>
                 </div>
               </div>
             ) : (
@@ -329,7 +633,6 @@ export default function DriverPortal() {
                     </div>
                   </div>
 
-                  {/* Tab switcher */}
                   <div className="flex border-b border-zinc-100">
                     {(['breakdown', 'history'] as const).map(tab => (
                       <button
@@ -382,21 +685,58 @@ export default function DriverPortal() {
                   )}
                 </div>
 
-                {/* Condition Score */}
+                {/* ── Banner Condition Score ── */}
                 <div className="bg-white p-5 rounded-[2rem] border border-zinc-100">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Banner Condition Score</p>
-                      <p className="text-2xl font-bold text-green-600">9.8 <span className="text-sm font-medium text-zinc-400">/10</span></p>
+                      <p className="text-[9px] text-zinc-400 font-medium">As per last image uploaded · {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Bonus Earned</p>
-                      <p className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-lg">2% Commission Discount</p>
+                    <span className={`text-[10px] font-black px-2 py-1 rounded-lg bg-zinc-50 ${conditionScore.color}`}>
+                      {conditionScore.label}
+                    </span>
+                  </div>
+
+                  <div className="flex items-end gap-3 mb-3">
+                    <p className={`text-4xl font-black tracking-tighter ${conditionScore.color}`}>
+                      {conditionScore.score}
+                    </p>
+                    <p className="text-sm font-medium text-zinc-400 mb-1">/10</p>
+                  </div>
+
+                  {/* Score bar */}
+                  <div className="w-full h-2 bg-zinc-100 rounded-full mb-3 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        conditionScore.score >= 9 ? 'bg-green-500' :
+                        conditionScore.score >= 7.5 ? 'bg-lime-500' :
+                        conditionScore.score >= 6 ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${(conditionScore.score / 10) * 100}%` }}
+                    />
+                  </div>
+
+                  <p className="text-[11px] text-zinc-500 font-medium leading-snug mb-3">{conditionScore.detail}</p>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Bonus</p>
+                      <p className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-lg inline-block">
+                        {conditionScore.score >= 9 ? '2% Commission Discount' :
+                         conditionScore.score >= 7.5 ? '1% Commission Discount' : 'No bonus — improve score'}
+                      </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsCameraOpen(true)}
+                      className="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4 flex items-center gap-1"
+                    >
+                      <Camera size={12} /> Update Image
+                    </button>
                   </div>
                 </div>
 
-                {/* Live Verification */}
+                {/* ── Live Verification ── */}
                 <div className="bg-blue-600 text-white p-6 rounded-[2rem] shadow-lg relative overflow-hidden">
                   <div className="relative z-10">
                     <div className="flex items-center space-x-2 mb-2">
@@ -417,7 +757,7 @@ export default function DriverPortal() {
                   <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full" />
                 </div>
 
-                {/* Active Campaign Card */}
+                {/* ── Active Campaign Card ── */}
                 <div className="uber-card bg-white border border-zinc-200">
                   <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -447,7 +787,7 @@ export default function DriverPortal() {
                   </div>
                 </div>
 
-                {/* NPS Capture */}
+                {/* ── NPS Capture ── */}
                 <div className="bg-white rounded-[2rem] border border-zinc-100 overflow-hidden">
                   <button
                     onClick={() => setShowNPS(!showNPS)}
@@ -512,7 +852,7 @@ export default function DriverPortal() {
                   )}
                 </div>
 
-                {/* Exit confirm modal */}
+                {/* ── Exit confirm modal ── */}
                 {showExitConfirm && (
                   <div className="fixed inset-0 bg-black/60 z-[100] flex items-end justify-center p-4 animate-in fade-in">
                     <div className="bg-white rounded-[32px] w-full max-w-md p-8 shadow-2xl animate-in slide-in-from-bottom-4">
