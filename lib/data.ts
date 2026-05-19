@@ -6,7 +6,7 @@ export const campaignDatabase = [
     title: "Summer Refresh '26",
     status: "Live",
     duration: "May 1 - Jun 15, 2026",
-    brand: "Coca-Cola",
+    brand: "Coca-Cola India",
     category: "FMCG & Beverages",
     costModel: "Cost Per Ad-KM",
     fleetSize: "500 Autos",
@@ -38,6 +38,31 @@ export const campaignDatabase = [
     ],
   },
   {
+    id: "camp_005",
+    title: "Thums Up: Thunder Zone",
+    status: "Ops Queue",
+    duration: "May 22 - Jun 30, 2026",
+    brand: "Thums Up",
+    category: "FMCG & Beverages",
+    costModel: "Fixed Fleet Rate",
+    fleetSize: "350 Autos",
+    zones: ["Koramangala", "Whitefield"],
+    city: "Bengaluru, KA",
+    adKms: "0",
+    views: "0",
+    imageUrl: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&q=80&w=600",
+    opsStages: [
+      { label: "Campaign Approved", done: true },
+      { label: "Artwork Verified", done: true },
+      { label: "Fleet Assigned (350 vehicles)", done: true },
+      { label: "Vinyl Wrap Installation", done: false, current: true, eta: "May 21, 2026" },
+      { label: "QR Verification & Go-Live", done: false },
+    ],
+    metrics: null,
+    weeklyChart: null,
+    zoneBreakdown: null,
+  },
+  {
     id: "camp_002",
     title: "Sprite: Stay Cool",
     status: "Completed",
@@ -50,7 +75,7 @@ export const campaignDatabase = [
     city: "Bengaluru, KA",
     adKms: "145,200",
     views: "4.8M",
-    imageUrl: "https://unsplash.com/photos/RH2ZA73kHiA/download?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&q=80&w=600",
     metrics: {
       totalVerifiedImpressions: 4800000,
       adKmsRaw: 145200,
@@ -128,6 +153,16 @@ export const campaignDatabase = [
   },
 ];
 
+// Dashboard summary metrics (brand-level, not campaign-level)
+export const brandDashboardMetrics = {
+  totalImpressions: { value: "8.1M", label: "Total GPS-Verified Impressions", delta: "+18.4%", deltaPositive: true, sub: "Across all active campaigns" },
+  activeCampaigns: { value: "2", label: "Active Campaigns", delta: "+1 vs last month", deltaPositive: true, sub: "1 live · 1 in ops queue" },
+  effectiveCPM: { value: "₹40.5", label: "Blended Effective CPM", delta: "−12% vs industry avg", deltaPositive: true, sub: "Industry benchmark ₹95–120" },
+  renewalRate: { value: "67%", label: "Campaign Renewal Rate", delta: "+27pts vs 40% target", deltaPositive: true, sub: "2 of 3 completed campaigns renewed" },
+  totalSpend: { value: "₹1.63Cr", label: "Total Spend (Active)", delta: "On budget", deltaPositive: true, sub: "Summer Refresh '26" },
+  fleetUtilization: { value: "91%", label: "Fleet Utilisation", delta: "+4pts vs last campaign", deltaPositive: true, sub: "500 vehicles · Bengaluru" },
+};
+
 // NEW DATA CONSTANTS FOR THE WIZARD
 export const BRANDS = ["Coca-Cola India", "Sprite", "Thums Up", "Minute Maid", "Smartwater"];
 export const CATEGORIES = ["FMCG & Beverages", "Quick-Commerce", "Electronics", "Apparel & Fashion", "Entertainment & OTT"];
@@ -172,7 +207,6 @@ export const performanceDataStore: Record<string, any> = {
   'this-month': {
     metrics: { active: 1080, adKms: '3.4M', impressions: '168.2M', fraud: '98.1%' },
     chart: {
-      // 31 days for May
       labels: Array.from({length: 31}, (_, i) => `May ${i + 1}`),
       views: [5.1e6, 5.3e6, 5.0e6, 5.8e6, 6.2e6, 7.5e6, 4.2e6, 5.2e6, 5.4e6, 5.1e6, 5.9e6, 6.3e6, 7.8e6, 4.5e6, 5.5e6, 5.6e6, 5.2e6, 6.0e6, 6.5e6, 8.0e6, 4.8e6, 5.3e6, 5.7e6, 5.4e6, 6.1e6, 6.4e6, 7.9e6, 4.6e6, 5.8e6, 6.0e6, 5.5e6],
       fleet: [1010, 1015, 1005, 1040, 1060, 1100, 950, 1020, 1025, 1010, 1050, 1070, 1120, 960, 1030, 1040, 1020, 1060, 1080, 1130, 980, 1045, 1055, 1035, 1075, 1090, 1140, 990, 1065, 1070, 1050]
@@ -181,7 +215,6 @@ export const performanceDataStore: Record<string, any> = {
   'last-month': {
     metrics: { active: 1115, adKms: '3.6M', impressions: '184.5M', fraud: '98.8%' },
     chart: {
-      // 30 days for April
       labels: Array.from({length: 30}, (_, i) => `Apr ${i + 1}`),
       views: [5.8e6, 6.0e6, 5.9e6, 6.5e6, 6.8e6, 8.2e6, 5.0e6, 5.9e6, 6.1e6, 6.0e6, 6.6e6, 7.0e6, 8.5e6, 5.2e6, 6.1e6, 6.3e6, 6.1e6, 6.8e6, 7.2e6, 8.8e6, 5.5e6, 6.2e6, 6.4e6, 6.3e6, 6.9e6, 7.4e6, 9.0e6, 5.8e6, 6.5e6, 6.7e6],
       fleet: [1050, 1060, 1055, 1090, 1110, 1160, 1000, 1065, 1075, 1060, 1100, 1120, 1180, 1020, 1080, 1090, 1070, 1115, 1135, 1195, 1040, 1095, 1105, 1085, 1125, 1145, 1205, 1060, 1110, 1120]
@@ -251,3 +284,21 @@ export const ACTIVE_BRAND_ZONES: Record<string, string[]> = {
 // Driver eligibility rules
 export const ELIGIBLE_VEHICLE_TYPES = ["Auto Rickshaw", "Sedan Cabs", "SUV Cab"];
 export const ELIGIBLE_ZONES = ["Strictly Within City Limits"];
+
+// Driver earnings data
+export const driverEarningsData = {
+  currentMonth: {
+    total: 3420,
+    paid: 2400,
+    pending: 1020,
+    campaigns: [
+      { name: "Coca-Cola Summer Refresh '26", brand: "Coca-Cola India", earned: 2180, adKms: 820, period: "May 1–19, 2026", status: "Active" },
+      { name: "Sprite Stay Cool", brand: "Sprite", earned: 1240, adKms: 480, period: "May 1–15, 2026", status: "Completed" },
+    ],
+  },
+  payoutHistory: [
+    { month: "April 2026", amount: 3850, status: "Paid", date: "May 5, 2026" },
+    { month: "March 2026", amount: 3120, status: "Paid", date: "Apr 5, 2026" },
+    { month: "February 2026", amount: 2740, status: "Paid", date: "Mar 5, 2026" },
+  ],
+};

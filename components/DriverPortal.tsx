@@ -1,29 +1,43 @@
+// components/DriverPortal.tsx
 "use client";
 import React, { useState } from 'react';
-import { Camera, FileText, IndianRupee, X, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { VEHICLE_TYPES, ELIGIBLE_VEHICLE_TYPES, ELIGIBLE_ZONES } from '@/lib/data';
+import { Camera, FileText, IndianRupee, X, AlertTriangle, CheckCircle, Clock, Star, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import { VEHICLE_TYPES, ELIGIBLE_VEHICLE_TYPES, ELIGIBLE_ZONES, driverEarningsData } from '@/lib/data';
 
 type OnboardingState = 'form' | 'ineligible' | 'waitlist-success' | 'onboarded';
 
+const TESTIMONIALS = [
+  { name: "Ravi K.", city: "Koramangala", vehicle: "Sedan", earnings: "₹3,850/mo", quote: "Started earning extra without changing my route. The wrap team came to my home pin — zero inconvenience." },
+  { name: "Suresh M.", city: "Whitefield",   vehicle: "Auto",  earnings: "₹2,940/mo", quote: "First month payout was credited on the 5th. No delays. Best passive income I've found on the platform." },
+  { name: "Kavitha R.", city: "HSR Layout",  vehicle: "SUV",   earnings: "₹4,120/mo", quote: "I was skeptical at first. Three campaigns later, it's become my favourite part of driving with Uber." },
+];
+
 export default function DriverPortal() {
-  const [viewMode, setViewMode] = useState<'not-onboarded' | 'onboarded'>('not-onboarded');
+  const [viewMode,      setViewMode]      = useState<'not-onboarded' | 'onboarded'>('not-onboarded');
   const [onboardingState, setOnboardingState] = useState<OnboardingState>('form');
   const [campaignState, setCampaignState] = useState<'pending' | 'active'>('pending');
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isCameraOpen,  setIsCameraOpen]  = useState(false);
+  const [earningsTab,   setEarningsTab]   = useState<'breakdown' | 'history'>('breakdown');
+  const [showNPS,       setShowNPS]       = useState(false);
+  const [npsScore,      setNpsScore]      = useState<number | null>(null);
+  const [npsFeedback,   setNpsFeedback]   = useState('');
+  const [npsSubmitted,  setNpsSubmitted]  = useState(false);
+  const [inspectionBooked, setInspectionBooked] = useState(false);
+  const [selectedSlot,  setSelectedSlot]  = useState('');
 
   // Form state
   const [vehicleType, setVehicleType] = useState('');
   const [drivingZone, setDrivingZone] = useState('');
   const [weeklyTrips, setWeeklyTrips] = useState(0);
 
-  // Earnings calculator — based on weekly trips input
-  const estimatedMonthly = weeklyTrips > 0 ? Math.round(weeklyTrips * 4 * (vehicleType === 'Auto Rickshaw' ? 38 : vehicleType === 'Sedan Cabs' ? 52 : vehicleType === 'SUV Cab' ? 65 : 0)) : 0;
+  const estimatedMonthly = weeklyTrips > 0
+    ? Math.round(weeklyTrips * 4 * (vehicleType === 'Auto Rickshaw' ? 38 : vehicleType === 'Sedan Cabs' ? 52 : vehicleType === 'SUV Cab' ? 65 : 0))
+    : 0;
 
   const handleSubmit = () => {
     const isVehicleEligible = ELIGIBLE_VEHICLE_TYPES.includes(vehicleType);
-    const isZoneEligible = ELIGIBLE_ZONES.includes(drivingZone);
-
+    const isZoneEligible    = ELIGIBLE_ZONES.includes(drivingZone);
     if (isVehicleEligible && isZoneEligible) {
       setViewMode('onboarded');
       setOnboardingState('onboarded');
@@ -37,12 +51,26 @@ export default function DriverPortal() {
     setShowExitConfirm(false);
   };
 
+  const handleNPSSubmit = () => {
+    if (npsScore !== null) setNpsSubmitted(true);
+  };
+
+  const data = driverEarningsData;
+
+  const INSPECTION_SLOTS = [
+    'Mon May 20 · 10:00 AM (Home visit)',
+    'Mon May 20 · 2:00 PM (Home visit)',
+    'Tue May 21 · 11:00 AM (Home visit)',
+    'Tue May 21 · 4:00 PM (Service centre — Koramangala)',
+    'Wed May 22 · 9:00 AM (Home visit)',
+  ];
+
   return (
     <div className="bg-zinc-50 min-h-[calc(100vh-64px)] pb-24 font-sans">
 
-      {/* Platform Toggle */}
+      {/* Toggle */}
       <div className="bg-white border-b border-zinc-100 p-4 sticky top-0 z-40 flex justify-center">
-        <div className="bg-zinc-100 p-1 rounded-full flex w-full max-sm max-w-sm">
+        <div className="bg-zinc-100 p-1 rounded-full flex w-full max-w-sm">
           <button
             onClick={() => { setViewMode('not-onboarded'); setOnboardingState('form'); setCampaignState('pending'); }}
             className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${viewMode === 'not-onboarded' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}
@@ -60,15 +88,30 @@ export default function DriverPortal() {
 
       <div className="max-w-md mx-auto p-4 space-y-6">
 
-        {/* ONBOARDING SECTION */}
+        {/* ══ ONBOARDING ══ */}
         {viewMode === 'not-onboarded' && (
-
           <>
-            {/* STATE: FORM */}
+            {/* FORM */}
             {onboardingState === 'form' && (
               <div className="animate-in fade-in slide-in-from-bottom-4">
-                <h2 className="text-3xl font-bold mb-2 tracking-tight">Earn with Uber Ads</h2>
-                <p className="text-zinc-500 mb-8 text-sm">Monetize your vehicle while you drive. Simple, compliant, and passive income.</p>
+                <h2 className="text-3xl font-bold mb-1 tracking-tight">Earn with Uber Ads</h2>
+                <p className="text-zinc-500 mb-6 text-sm">Monetize your vehicle while you drive. Simple, compliant, passive income.</p>
+
+                {/* Social proof */}
+                <div className="space-y-3 mb-8">
+                  {TESTIMONIALS.map((t, i) => (
+                    <div key={i} className="bg-white border border-zinc-100 rounded-2xl p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-bold text-zinc-900">{t.name} · {t.city}</p>
+                          <p className="text-[10px] text-zinc-400 font-medium">{t.vehicle}</p>
+                        </div>
+                        <span className="text-sm font-black text-green-600 bg-green-50 px-2 py-1 rounded-lg">{t.earnings}</span>
+                      </div>
+                      <p className="text-xs text-zinc-500 leading-relaxed italic">"{t.quote}"</p>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="space-y-4">
                   {/* Vehicle Category */}
@@ -80,9 +123,7 @@ export default function DriverPortal() {
                       className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none"
                     >
                       <option value="" disabled>Select vehicle...</option>
-                      {VEHICLE_TYPES.map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
+                      {VEHICLE_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                     </select>
                     {vehicleType && !ELIGIBLE_VEHICLE_TYPES.includes(vehicleType) && (
                       <p className="text-[10px] text-amber-600 font-bold mt-2 flex items-center gap-1">
@@ -106,30 +147,24 @@ export default function DriverPortal() {
                     </select>
                   </div>
 
-                  {/* Weekly Trips — Earnings Calculator */}
+                  {/* Weekly Trips */}
                   <div className="bg-white p-5 rounded-2xl border border-zinc-200">
                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3 block">Avg. Weekly Trips</label>
                     <input
-                      type="number"
-                      min={0}
-                      placeholder="e.g. 80"
+                      type="number" min={0} placeholder="e.g. 80"
                       value={weeklyTrips || ''}
                       onChange={(e) => setWeeklyTrips(Number(e.target.value))}
                       className="w-full py-2 border-b border-zinc-200 font-bold bg-transparent outline-none text-zinc-900"
                     />
-
-                    {/* Live earnings estimate */}
                     {estimatedMonthly > 0 && (
                       <div className="mt-4 bg-zinc-900 text-white rounded-xl p-4 animate-in fade-in">
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Your Estimated Monthly Bonus</p>
                         <p className="text-3xl font-black tracking-tighter">₹{estimatedMonthly.toLocaleString('en-IN')}</p>
-                        <p className="text-[10px] text-zinc-400 mt-1">Based on {weeklyTrips} trips/week · {vehicleType || 'selected vehicle'} · no extra driving hours</p>
+                        <p className="text-[10px] text-zinc-400 mt-1">Based on {weeklyTrips} trips/week · {vehicleType} · no extra driving hours</p>
                       </div>
                     )}
                     {weeklyTrips > 0 && estimatedMonthly === 0 && vehicleType && (
-                      <p className="text-[10px] text-zinc-400 font-bold mt-3">
-                        Earnings estimate not available for this vehicle type in v1. You'll be notified when eligible.
-                      </p>
+                      <p className="text-[10px] text-zinc-400 font-bold mt-3">Earnings estimate not available for this vehicle type in v1. You'll be notified when eligible.</p>
                     )}
                   </div>
 
@@ -140,6 +175,37 @@ export default function DriverPortal() {
                       <FileText size={20} className="mx-auto mb-2 text-zinc-400" />
                       <p className="text-sm font-bold">Scan Permit & RC</p>
                     </div>
+                  </div>
+
+                  {/* Inspection scheduler */}
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200">
+                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Schedule Mobile Inspection</label>
+                    <p className="text-[10px] text-zinc-400 font-medium mb-4">Optional — a mobile van comes to your location. Saves a trip to the service centre.</p>
+                    {!inspectionBooked ? (
+                      <div className="space-y-2">
+                        {INSPECTION_SLOTS.map(slot => (
+                          <button
+                            key={slot}
+                            onClick={() => setSelectedSlot(slot)}
+                            className={`w-full text-left px-4 py-3 rounded-xl border text-xs font-bold transition-all ${selectedSlot === slot ? 'border-black bg-zinc-50' : 'border-zinc-100 hover:border-zinc-300'}`}
+                          >
+                            {slot}
+                          </button>
+                        ))}
+                        {selectedSlot && (
+                          <button
+                            onClick={() => setInspectionBooked(true)}
+                            className="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold text-sm mt-2 active:scale-95 transition-all"
+                          >
+                            Confirm Slot
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 text-xs font-bold">
+                        <CheckCircle size={14} /> Inspection booked · {selectedSlot}
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -153,7 +219,7 @@ export default function DriverPortal() {
               </div>
             )}
 
-            {/* STATE: INELIGIBLE — alternate path instead of dead-end */}
+            {/* INELIGIBLE */}
             {onboardingState === 'ineligible' && (
               <div className="animate-in fade-in slide-in-from-bottom-4">
                 <div className="bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm text-center mb-6">
@@ -163,49 +229,38 @@ export default function DriverPortal() {
                   <h2 className="text-2xl font-bold mb-2">Not Eligible for v1</h2>
                   <p className="text-zinc-500 text-sm leading-relaxed mb-6">
                     Your vehicle or routing doesn't qualify for the current Bangalore pilot.
-                    This could be due to vehicle type or operating zone restrictions.
                   </p>
                   <div className="bg-zinc-50 rounded-2xl p-5 text-left space-y-3 mb-6">
                     <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Why you may not qualify</p>
                     {!ELIGIBLE_VEHICLE_TYPES.includes(vehicleType) && (
                       <div className="flex items-center gap-2 text-sm font-bold text-zinc-700">
                         <X size={14} className="text-red-400" />
-                        {vehicleType} is not in the v1 fleet category (Auto, Sedan, SUV only)
+                        {vehicleType} is not in v1 fleet category (Auto, Sedan, SUV only)
                       </div>
                     )}
                     {!ELIGIBLE_ZONES.includes(drivingZone) && (
                       <div className="flex items-center gap-2 text-sm font-bold text-zinc-700">
                         <X size={14} className="text-red-400" />
-                        Inter-city / long-haul routes not supported in v1 (city-only zones)
+                        Inter-city / long-haul routes not supported in v1
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* Waitlist CTA */}
                 <div className="bg-zinc-900 text-white rounded-[32px] p-8 text-center">
                   <Clock size={28} className="mx-auto mb-3 text-zinc-400" />
                   <h3 className="text-xl font-bold mb-2">Join the Waitlist</h3>
-                  <p className="text-zinc-400 text-sm mb-6">
-                    We're expanding to more vehicle types and zones in v2. We'll notify you the moment you qualify.
-                  </p>
-                  <button
-                    onClick={() => setOnboardingState('waitlist-success')}
-                    className="w-full bg-white text-black py-4 rounded-xl font-bold text-base active:scale-95 transition-all"
-                  >
+                  <p className="text-zinc-400 text-sm mb-6">We're expanding to more types and zones in v2. We'll notify you when you qualify.</p>
+                  <button onClick={() => setOnboardingState('waitlist-success')} className="w-full bg-white text-black py-4 rounded-xl font-bold text-base active:scale-95 transition-all">
                     Notify Me When I'm Eligible
                   </button>
-                  <button
-                    onClick={() => setOnboardingState('form')}
-                    className="mt-3 text-zinc-500 text-sm font-bold underline underline-offset-4 hover:text-white transition-colors"
-                  >
+                  <button onClick={() => setOnboardingState('form')} className="mt-3 text-zinc-500 text-sm font-bold underline underline-offset-4 hover:text-white transition-colors">
                     ← Edit my details
                   </button>
                 </div>
               </div>
             )}
 
-            {/* STATE: WAITLIST CONFIRMED */}
+            {/* WAITLIST CONFIRMED */}
             {onboardingState === 'waitlist-success' && (
               <div className="animate-in fade-in slide-in-from-bottom-4 text-center pt-12">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -213,7 +268,7 @@ export default function DriverPortal() {
                 </div>
                 <h2 className="text-3xl font-bold mb-3">You're on the list.</h2>
                 <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mx-auto mb-8">
-                  We'll send you a push notification and SMS the moment your vehicle type or zone becomes eligible. No action needed.
+                  We'll send a push notification and SMS the moment your zone becomes eligible. No action needed.
                 </p>
                 <div className="bg-zinc-100 rounded-2xl p-5 text-left max-w-sm mx-auto">
                   <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest mb-3">What happens next</p>
@@ -229,7 +284,7 @@ export default function DriverPortal() {
           </>
         )}
 
-        {/* ACTIVE ADS SECTION */}
+        {/* ══ ACTIVE ADS ══ */}
         {viewMode === 'onboarded' && (
           <div className="animate-in fade-in duration-500">
             {campaignState === 'pending' ? (
@@ -241,27 +296,15 @@ export default function DriverPortal() {
                   <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">New Ad Campaign</h3>
                   <h2 className="text-3xl font-bold italic">Coca-Cola Summer</h2>
                 </div>
-
                 <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600" className="w-full h-40 object-cover rounded-2xl mb-6 shadow-sm" alt="Banner Preview" />
-
                 <div className="space-y-4 mb-8">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-500 font-medium">Estimated Payout</span>
-                    <span className="font-bold text-lg">₹12,500</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-500 font-medium">Duration</span>
-                    <span className="font-bold">45 Days</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-500 font-medium">Minimum Commitment</span>
-                    <span className="font-bold">30 Days</span>
-                  </div>
+                  <div className="flex justify-between items-center text-sm"><span className="text-zinc-500 font-medium">Estimated Payout</span><span className="font-bold text-lg">₹12,500</span></div>
+                  <div className="flex justify-between items-center text-sm"><span className="text-zinc-500 font-medium">Duration</span><span className="font-bold">45 Days</span></div>
+                  <div className="flex justify-between items-center text-sm"><span className="text-zinc-500 font-medium">Minimum Commitment</span><span className="font-bold">30 Days</span></div>
                   <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-[11px] font-bold text-amber-700">
                     ⚠ Early exit before 30 days incurs a ₹500 penalty deducted from earnings.
                   </div>
                 </div>
-
                 <div className="flex gap-3">
                   <button className="w-14 h-14 bg-zinc-100 rounded-xl flex items-center justify-center text-zinc-500"><X size={24} /></button>
                   <button onClick={() => setCampaignState('active')} className="flex-1 bg-black text-white rounded-xl font-bold text-lg py-4 active:scale-95 transition-all">Accept Offer</button>
@@ -269,21 +312,87 @@ export default function DriverPortal() {
               </div>
             ) : (
               <div className="animate-in fade-in zoom-in-95 duration-500 space-y-6">
-                {/* Earnings & Condition Score */}
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border-b-4 border-green-500 border border-zinc-100">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1">This Month's Bonus</p>
-                      <h2 className="text-4xl font-bold tracking-tighter italic text-zinc-900">₹3,420</h2>
+
+                {/* ── Earnings Dashboard ── */}
+                <div className="bg-white rounded-[2rem] shadow-sm border border-zinc-100 overflow-hidden">
+                  <div className="p-6 border-b border-zinc-100">
+                    <div className="flex justify-between items-start mb-1">
+                      <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Earnings This Month</p>
+                      <span className="text-green-600 text-[10px] font-black bg-green-50 px-2 py-0.5 rounded-full">↑ vs last month</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-green-600 text-[10px] font-bold uppercase tracking-widest mb-1">Condition Score</p>
-                      <h2 className="text-2xl font-bold text-green-600">9.8<span className="text-sm font-medium">/10</span></h2>
+                    <h2 className="text-4xl font-bold tracking-tighter italic text-zinc-900">
+                      ₹{data.currentMonth.total.toLocaleString('en-IN')}
+                    </h2>
+                    <div className="flex gap-4 mt-3 text-[10px] font-bold">
+                      <span className="text-green-600 bg-green-50 px-2 py-1 rounded-lg">₹{data.currentMonth.paid.toLocaleString('en-IN')} paid</span>
+                      <span className="text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">₹{data.currentMonth.pending.toLocaleString('en-IN')} pending</span>
                     </div>
                   </div>
-                  <div className="mt-6 flex items-center gap-2 text-[11px] text-green-700 bg-green-50 p-3 rounded-xl font-bold">
-                    <span className="text-lg">★</span>
-                    You earned a 2% Commission Discount for "Excellent Banner Care"
+
+                  {/* Tab switcher */}
+                  <div className="flex border-b border-zinc-100">
+                    {(['breakdown', 'history'] as const).map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setEarningsTab(tab)}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-colors ${earningsTab === tab ? 'text-black border-b-2 border-black' : 'text-zinc-400'}`}
+                      >
+                        {tab === 'breakdown' ? 'Per Campaign' : 'Payout History'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {earningsTab === 'breakdown' && (
+                    <div className="p-5 space-y-4">
+                      {data.currentMonth.campaigns.map((c, i) => (
+                        <div key={i} className="bg-zinc-50 rounded-xl p-4 border border-zinc-100">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="text-sm font-bold text-zinc-900">{c.name}</p>
+                              <p className="text-[10px] text-zinc-400 font-medium">{c.brand} · {c.period}</p>
+                            </div>
+                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${c.status === 'Active' ? 'bg-black text-white' : 'bg-green-100 text-green-700'}`}>
+                              {c.status}
+                            </span>
+                          </div>
+                          <div className="flex gap-4 text-xs font-bold">
+                            <span className="text-green-700">₹{c.earned.toLocaleString('en-IN')} earned</span>
+                            <span className="text-zinc-400">{c.adKms} Ad-KMs</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {earningsTab === 'history' && (
+                    <div className="p-5 space-y-3">
+                      {data.payoutHistory.map((p, i) => (
+                        <div key={i} className="flex items-center justify-between py-3 border-b border-zinc-50 last:border-0">
+                          <div>
+                            <p className="text-sm font-bold text-zinc-900">{p.month}</p>
+                            <p className="text-[10px] text-zinc-400 font-medium">Paid {p.date}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-zinc-900">₹{p.amount.toLocaleString('en-IN')}</p>
+                            <span className="text-[9px] font-black text-green-700 bg-green-50 px-2 py-0.5 rounded-full uppercase">{p.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Condition Score */}
+                <div className="bg-white p-5 rounded-[2rem] border border-zinc-100">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Banner Condition Score</p>
+                      <p className="text-2xl font-bold text-green-600">9.8 <span className="text-sm font-medium text-zinc-400">/10</span></p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Bonus Earned</p>
+                      <p className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-lg">2% Commission Discount</p>
+                    </div>
                   </div>
                 </div>
 
@@ -291,11 +400,11 @@ export default function DriverPortal() {
                 <div className="bg-blue-600 text-white p-6 rounded-[2rem] shadow-lg relative overflow-hidden">
                   <div className="relative z-10">
                     <div className="flex items-center space-x-2 mb-2">
-                      <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
                       <span className="text-[10px] font-bold uppercase tracking-widest">Live Ad-Check Required</span>
                     </div>
                     <p className="text-sm opacity-90 mb-6 font-medium leading-tight max-w-[200px]">
-                      Verification expires in 2 hours. Ensure Number Plate is visible.
+                      Verification expires in 2 hours. Ensure number plate is visible.
                     </p>
                     <button
                       type="button"
@@ -305,7 +414,7 @@ export default function DriverPortal() {
                       OPEN LIVE CAMERA
                     </button>
                   </div>
-                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full"></div>
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full" />
                 </div>
 
                 {/* Active Campaign Card */}
@@ -322,31 +431,88 @@ export default function DriverPortal() {
                     </div>
                     <span className="bg-zinc-100 text-zinc-500 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">Removable</span>
                   </div>
-
                   <div className="h-40 relative group">
                     <img
                       src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600"
                       className="w-full h-full object-cover"
                       alt="Active Campaign"
                     />
-                    <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-widest">Uber</div>
                   </div>
-
                   <div className="p-5 bg-zinc-50 flex justify-between items-center text-[11px] font-bold">
                     <span className="text-zinc-400 italic">"Campaign ends in 12 days"</span>
                     <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => setShowExitConfirm(true)}
-                        className="text-red-500 hover:text-red-700 hover:underline underline-offset-4 transition-colors"
-                      >
-                        Exit Campaign
-                      </button>
+                      <button onClick={() => setShowExitConfirm(true)} className="text-red-500 hover:text-red-700 hover:underline underline-offset-4 transition-colors">Exit Campaign</button>
                       <button className="text-blue-600 hover:underline underline-offset-4">Request Removal Help</button>
                     </div>
                   </div>
                 </div>
 
-                {/* Exit confirmation modal */}
+                {/* NPS Capture */}
+                <div className="bg-white rounded-[2rem] border border-zinc-100 overflow-hidden">
+                  <button
+                    onClick={() => setShowNPS(!showNPS)}
+                    className="w-full flex items-center justify-between p-5 hover:bg-zinc-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Star size={18} className="text-amber-500" />
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-zinc-900">Rate your Uber Ads experience</p>
+                        <p className="text-[10px] text-zinc-400 font-medium">Helps us improve driver satisfaction</p>
+                      </div>
+                    </div>
+                    {showNPS ? <ChevronUp size={16} className="text-zinc-400" /> : <ChevronDown size={16} className="text-zinc-400" />}
+                  </button>
+
+                  {showNPS && (
+                    <div className="px-5 pb-5 border-t border-zinc-100 pt-5">
+                      {npsSubmitted ? (
+                        <div className="text-center py-4">
+                          <CheckCircle size={28} className="text-green-600 mx-auto mb-2" />
+                          <p className="font-bold text-sm text-zinc-900">Thanks for your feedback!</p>
+                          <p className="text-[10px] text-zinc-400 font-medium mt-1">Your response helps us keep driver NPS healthy.</p>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-xs font-bold text-zinc-600 mb-3">How likely are you to recommend Uber Ads to another driver?</p>
+                          <div className="flex gap-2 mb-4 flex-wrap">
+                            {Array.from({ length: 11 }, (_, i) => i).map(n => (
+                              <button
+                                key={n}
+                                onClick={() => setNpsScore(n)}
+                                className={`w-9 h-9 rounded-lg text-xs font-black transition-all border ${
+                                  npsScore === n ? 'bg-black text-white border-black' : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-400'
+                                }`}
+                              >
+                                {n}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex justify-between text-[9px] text-zinc-400 font-bold mb-4">
+                            <span>0 = Not at all</span><span>10 = Definitely</span>
+                          </div>
+                          {npsScore !== null && (
+                            <>
+                              <textarea
+                                value={npsFeedback}
+                                onChange={(e) => setNpsFeedback(e.target.value)}
+                                placeholder="Optional: anything we should improve?"
+                                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-medium outline-none focus:border-black transition-all resize-none h-20 mb-3"
+                              />
+                              <button
+                                onClick={handleNPSSubmit}
+                                className="w-full bg-black text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+                              >
+                                <Send size={14} /> Submit Feedback
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Exit confirm modal */}
                 {showExitConfirm && (
                   <div className="fixed inset-0 bg-black/60 z-[100] flex items-end justify-center p-4 animate-in fade-in">
                     <div className="bg-white rounded-[32px] w-full max-w-md p-8 shadow-2xl animate-in slide-in-from-bottom-4">
@@ -355,35 +521,16 @@ export default function DriverPortal() {
                       </div>
                       <h3 className="text-xl font-bold text-center mb-2">Exit this campaign?</h3>
                       <p className="text-zinc-500 text-sm text-center leading-relaxed mb-6">
-                        Exiting before the 30-day minimum commitment period will result in a <strong className="text-zinc-900">₹500 early exit penalty</strong> deducted from your current earnings.
+                        Exiting before the 30-day minimum incurs a <strong className="text-zinc-900">₹500 early exit penalty</strong>.
                       </p>
                       <div className="bg-zinc-50 rounded-xl p-4 mb-6 text-sm font-bold">
-                        <div className="flex justify-between mb-2">
-                          <span className="text-zinc-500">Earned so far</span>
-                          <span className="text-zinc-900">₹3,420</span>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-zinc-500">Early exit penalty</span>
-                          <span className="text-red-600">− ₹500</span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-zinc-200">
-                          <span className="text-zinc-900">You'll receive</span>
-                          <span className="text-zinc-900 font-black">₹2,920</span>
-                        </div>
+                        <div className="flex justify-between mb-2"><span className="text-zinc-500">Earned so far</span><span className="text-zinc-900">₹3,420</span></div>
+                        <div className="flex justify-between mb-2"><span className="text-zinc-500">Early exit penalty</span><span className="text-red-600">− ₹500</span></div>
+                        <div className="flex justify-between pt-2 border-t border-zinc-200"><span className="text-zinc-900">You'll receive</span><span className="text-zinc-900 font-black">₹2,920</span></div>
                       </div>
                       <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowExitConfirm(false)}
-                          className="flex-1 bg-zinc-100 text-zinc-900 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-all"
-                        >
-                          Stay in Campaign
-                        </button>
-                        <button
-                          onClick={handleExitCampaign}
-                          className="flex-1 bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95"
-                        >
-                          Confirm Exit
-                        </button>
+                        <button onClick={() => setShowExitConfirm(false)} className="flex-1 bg-zinc-100 text-zinc-900 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-all">Stay in Campaign</button>
+                        <button onClick={handleExitCampaign} className="flex-1 bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95">Confirm Exit</button>
                       </div>
                     </div>
                   </div>
@@ -394,14 +541,16 @@ export default function DriverPortal() {
         )}
       </div>
 
-      {/* Camera Fullscreen Overlay */}
+      {/* Camera overlay */}
       {isCameraOpen && (
         <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in">
           <div className="w-full max-w-sm aspect-[3/4] border-2 border-dashed border-white/30 rounded-[3rem] relative flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]"></div>
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
             <p className="text-white text-xs font-bold uppercase tracking-[0.2em] text-center z-10 px-10">Scan Vinyl QR Code on Rear Window</p>
           </div>
-          <button onClick={() => setIsCameraOpen(false)} className="mt-12 w-20 h-20 rounded-full border-4 border-white/20 p-1"><div className="w-full h-full bg-white rounded-full"></div></button>
+          <button onClick={() => setIsCameraOpen(false)} className="mt-12 w-20 h-20 rounded-full border-4 border-white/20 p-1">
+            <div className="w-full h-full bg-white rounded-full" />
+          </button>
           <button onClick={() => setIsCameraOpen(false)} className="absolute top-8 right-8 text-white font-bold text-sm">Cancel</button>
         </div>
       )}
